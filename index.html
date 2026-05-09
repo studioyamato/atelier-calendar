@@ -9,129 +9,117 @@
 :root{
   --bg:#F7F2EA;--sd:rgba(180,148,110,.38);--sl:rgba(255,255,255,.9);
   --tan:#C08B5C;--brown:#3D2B1A;--mu:#9C7E5F;
-  --lesson:#2E7D52;--lesson-bg:rgba(46,125,82,.12);
+  --lesson:#2E7D52;--lesson-bg:rgba(46,125,82,.13);
   --personal:#7B5EA7;--personal-bg:rgba(123,94,167,.1);
   --closed:#B03A2E;--closed-bg:rgba(176,58,46,.09);
-  --free:#8B6914;--free-bg:rgba(210,175,80,.14);
   --today-c:#C08B5C;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);font-family:'M PLUS Rounded 1c',sans-serif;color:var(--brown)}
-body{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
+body{max-width:520px;margin:0 auto;padding-bottom:80px;min-height:100vh}
 
-/* ===== ヘッダー ===== */
+/* ヘッダー */
 .hd{position:sticky;top:0;z-index:100;background:var(--bg);
-  padding:14px 16px 0;box-shadow:0 4px 16px rgba(180,148,110,.13)}
+  padding:12px 14px 0;box-shadow:0 4px 16px rgba(180,148,110,.13)}
 .hd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.app-name{font-size:12px;font-weight:700;color:var(--mu);letter-spacing:.06em}
-.view-tabs{display:flex;gap:4px;background:var(--bg);
+.app-name{font-size:11px;font-weight:700;color:var(--mu);letter-spacing:.06em}
+.view-tabs{display:flex;gap:3px;background:var(--bg);
   box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl);
   border-radius:9999px;padding:3px}
-.vtab{border:none;background:none;cursor:pointer;padding:5px 13px;border-radius:9999px;
-  font-size:11.5px;font-weight:700;color:var(--mu);transition:all .18s;font-family:inherit}
-.vtab.active{background:var(--tan);color:#fff;
-  box-shadow:3px 3px 8px var(--sd),-2px -2px 6px var(--sl)}
-.nav-row{display:flex;align-items:center;justify-content:space-between;
-  padding-bottom:12px;gap:8px}
-.nbtn{background:var(--bg);border:none;cursor:pointer;width:36px;height:36px;border-radius:50%;
+.vtab{border:none;background:none;cursor:pointer;padding:5px 12px;border-radius:9999px;
+  font-size:11px;font-weight:700;color:var(--mu);transition:all .18s;font-family:inherit}
+.vtab.active{background:var(--tan);color:#fff;box-shadow:2px 2px 6px var(--sd)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;gap:8px}
+.nbtn{background:var(--bg);border:none;cursor:pointer;width:34px;height:34px;border-radius:50%;
   box-shadow:4px 4px 10px var(--sd),-3px -3px 8px var(--sl);
-  font-size:14px;color:var(--brown);display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--brown);display:flex;align-items:center;justify-content:center;
   transition:all .18s;flex-shrink:0}
-.nbtn:active{box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl);transform:scale(.95)}
-.period-label{font-size:15px;font-weight:800;color:var(--brown);text-align:center;flex:1}
+.nbtn:active{box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl)}
+.period-label{font-size:14px;font-weight:800;color:var(--brown);text-align:center;flex:1}
 
-/* ===== ローディング ===== */
+/* ローディング */
 .loading{text-align:center;padding:52px 20px}
 .spin{width:28px;height:28px;border:3px solid rgba(192,139,92,.2);border-top-color:var(--tan);
   border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 12px}
 @keyframes sp{to{transform:rotate(360deg)}}
 .loading p{font-size:12px;color:var(--mu)}
-.err-box{margin:20px 14px;padding:16px;border-radius:14px;background:var(--closed-bg);text-align:center}
+.err-box{margin:16px;padding:16px;border-radius:14px;background:var(--closed-bg);text-align:center}
 .err-box p{font-size:12.5px;color:var(--closed);line-height:1.8}
 .rbtn{margin-top:10px;background:var(--bg);border:none;cursor:pointer;padding:7px 16px;
   border-radius:9999px;font-size:12px;font-weight:700;color:var(--tan);
   box-shadow:3px 3px 8px var(--sd),-2px -2px 6px var(--sl);font-family:inherit}
 
 /* ===== 月表示 ===== */
-#view-month{padding:12px 12px 0}
-.month-wds{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+#view-month{padding:10px 10px 0}
+.month-wds{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
 .mwd{text-align:center;font-size:10px;font-weight:700;color:var(--mu);padding:4px 0}
 .mwd.s{color:#c0392b}.mwd.sa{color:#2E7A94}
-.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.mcell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;cursor:pointer;position:relative;
-  transition:all .15s;font-size:13px;font-weight:700}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.mcell{border-radius:8px;cursor:pointer;transition:all .15s;padding:3px 2px;min-height:52px;
+  display:flex;flex-direction:column;align-items:center}
 .mcell.emp{visibility:hidden}
-.mcell.today-cell{outline:2.5px solid var(--tan);outline-offset:-2px}
-.mcell.has-closed{background:var(--closed-bg);color:var(--closed)}
-.mcell.has-events:not(.has-closed){background:var(--lesson-bg);color:var(--lesson)}
-.mcell.no-events{color:rgba(61,43,26,.3)}
-.mcell.sun-c:not(.has-events):not(.has-closed){color:#c0392b}
-.mcell.sat-c:not(.has-events):not(.has-closed){color:#2E7A94}
-.mcell.selected-cell{box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl) !important;
-  outline:2px solid var(--tan) !important}
-.mcell .mdot-wrap{display:flex;gap:2px;position:absolute;bottom:3px}
-.mdot{width:4px;height:4px;border-radius:50%}
+.mcell-num{font-size:12px;font-weight:700;margin-bottom:2px;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%}
+.mcell.today-cell .mcell-num{background:var(--tan);color:#fff}
+.mcell.sun-c .mcell-num{color:#c0392b}
+.mcell.sat-c .mcell-num{color:#2E7A94}
+.mcell.selected-cell{box-shadow:inset 2px 2px 6px var(--sd),inset -2px -2px 5px var(--sl)}
+.mcell-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;padding:0 2px}
+.mcell-ev{font-size:8px;font-weight:700;border-radius:3px;padding:1px 3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-bottom:1px}
+.mcell-ev.lesson{background:var(--lesson-bg);color:var(--lesson)}
+.mcell-ev.personal{background:var(--personal-bg);color:var(--personal)}
+.mcell-ev.closed{background:var(--closed-bg);color:var(--closed)}
 
-/* 月表示の日別詳細パネル */
-.month-detail{margin-top:10px;border-radius:18px;overflow:hidden;
+/* 月表示の日別詳細 */
+.month-detail{margin-top:10px;border-radius:16px;overflow:hidden;
   box-shadow:4px 4px 12px var(--sd),-3px -3px 9px var(--sl)}
-.md-header{padding:12px 16px;background:var(--tan);color:#fff;
-  font-size:13px;font-weight:800}
-.md-body{padding:12px 14px;background:var(--bg)}
-.md-empty{font-size:12.5px;color:var(--mu);padding:8px 0}
+.md-header{padding:11px 16px;background:var(--tan);color:#fff;font-size:13px;font-weight:800}
+.md-body{padding:10px 14px;background:var(--bg)}
+.md-ev{display:flex;align-items:flex-start;gap:8px;padding:6px 0;
+  border-bottom:1px solid rgba(192,139,92,.1)}
+.md-ev:last-child{border-bottom:none}
+.md-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.md-title{font-size:12.5px;font-weight:700}
+.md-time{font-size:10.5px;color:var(--mu)}
+.md-empty{font-size:12px;color:var(--mu);padding:8px 0}
 
-/* ===== 週表示 ===== */
-#view-week{padding:10px 10px 0;overflow-x:auto}
-/* 週表示ラッパー */
-.week-wrap{padding:10px 8px 0;overflow-x:auto;overflow-y:visible}
-.week-outer{display:flex;flex-direction:column;min-width:320px}
-
-/* 曜日ヘッダー行 */
-.wg-header{display:flex;margin-left:32px;gap:1px;margin-bottom:2px}
-.wg-daycol{flex:1;text-align:center;padding:5px 2px}
-.wg-dow{font-size:10px;font-weight:700;color:var(--mu)}
-.wg-dnum{font-size:14px;font-weight:800;color:var(--brown);line-height:1.3}
-.wg-daycol.today-col .wg-dnum{background:var(--tan);color:#fff;width:24px;height:24px;
+/* ===== 週表示（Googleカレンダー風タイムライン） ===== */
+#view-week{padding:0;overflow:hidden}
+.week-header{display:flex;border-bottom:1px solid rgba(192,139,92,.15);
+  background:var(--bg);position:sticky;top:var(--hd-h,110px);z-index:10}
+.wh-time{width:40px;flex-shrink:0}
+.wh-day{flex:1;text-align:center;padding:6px 2px;cursor:pointer;border-left:1px solid rgba(192,139,92,.08)}
+.wh-dow{font-size:10px;font-weight:700;color:var(--mu)}
+.wh-num{font-size:14px;font-weight:800;line-height:1.3}
+.wh-day.today-col .wh-num{background:var(--tan);color:#fff;width:24px;height:24px;
   border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;margin:2px auto 0}
-.wg-daycol.closed-col{opacity:.5}
-.wg-daycol.sun-col .wg-dow,.wg-daycol.sun-col .wg-dnum{color:#c0392b}
-.wg-daycol.sat-col .wg-dow,.wg-daycol.sat-col .wg-dnum{color:#2E7A94}
+.wh-day.closed-col{opacity:.55}
+.wh-day.sun-col .wh-dow,.wh-day.sun-col .wh-num{color:#c0392b}
+.wh-day.sat-col .wh-dow,.wh-day.sat-col .wh-num{color:#2E7A94}
 
-/* タイムライン本体 */
-.wg-body{display:flex;flex:1}
-
-/* 時刻ラベル列 */
-.wg-times{width:32px;flex-shrink:0;position:relative}
-.wg-time-label{position:absolute;right:4px;font-size:9px;font-weight:700;color:var(--mu);
-  transform:translateY(-50%);line-height:1;white-space:nowrap}
-
-/* 日列グリッド */
-.wg-cols{display:flex;flex:1;gap:1px;position:relative}
-.wg-col{flex:1;position:relative;border-left:1px solid rgba(192,139,92,.08)}
-
-/* 時間線（横線） */
-.wg-hline{position:absolute;left:0;right:0;border-top:1px solid rgba(192,139,92,.1);pointer-events:none}
-
-/* 休業日背景 */
-.wg-closed-bg{position:absolute;inset:0;background:var(--closed-bg);opacity:.6;pointer-events:none;
+.week-body{display:flex;overflow-y:auto;max-height:calc(100vh - 180px);position:relative}
+.week-times{width:40px;flex-shrink:0;position:relative}
+.wt-label{position:absolute;right:4px;font-size:9px;font-weight:700;color:var(--mu);
+  transform:translateY(-50%);white-space:nowrap}
+.week-cols{flex:1;display:flex;position:relative}
+.week-hline{position:absolute;left:0;right:0;border-top:1px solid rgba(192,139,92,.1);pointer-events:none}
+.week-hline.hour{border-top-color:rgba(192,139,92,.18)}
+.wday-col{flex:1;position:relative;border-left:1px solid rgba(192,139,92,.08)}
+.wday-closed{position:absolute;inset:0;background:var(--closed-bg);opacity:.5;pointer-events:none;
   display:flex;align-items:center;justify-content:center}
-.wg-closed-label{font-size:9px;font-weight:700;color:var(--closed);writing-mode:vertical-rl;
-  letter-spacing:.1em}
+.wday-closed span{font-size:9px;font-weight:700;color:var(--closed);writing-mode:vertical-rl}
 
-/* 予定ブロック（絶対配置） */
-.wg-ev{position:absolute;left:1px;right:1px;border-radius:6px;padding:2px 4px;
-  overflow:hidden;font-size:9.5px;font-weight:700;line-height:1.3;cursor:default;
-  box-sizing:border-box}
-.wg-ev.lesson{background:var(--lesson-bg);color:var(--lesson);border-left:2px solid var(--lesson)}
-.wg-ev.personal{background:var(--personal-bg);color:var(--personal);border-left:2px solid var(--personal)}
-.wg-ev .ev-t{font-size:8.5px;opacity:.7;display:block}
-.wg-ev .ev-n{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
+/* 週表示の予定ブロック */
+.wev{position:absolute;border-radius:5px;padding:2px 4px;overflow:hidden;
+  font-size:9.5px;font-weight:700;line-height:1.3;cursor:default;border-left:2px solid}
+.wev.lesson{background:var(--lesson-bg);border-color:var(--lesson);color:var(--lesson)}
+.wev.personal{background:var(--personal-bg);border-color:var(--personal);color:var(--personal)}
+.wev-time{font-size:8px;opacity:.65;display:block}
+.wev-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ===== 日表示 ===== */
-#view-day{padding:12px 14px 0}
-/* 曜日タブ */
+#view-day{padding:10px 12px 0}
 .day-tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
 .dtab{display:flex;flex-direction:column;align-items:center;gap:2px;
   padding:6px 2px;border-radius:12px;cursor:pointer;border:none;background:none;
@@ -142,8 +130,8 @@ body{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
 .dtab.sat .dt-dow,.dtab.sat .dt-num{color:#2E7A94}
 .dtab.active{background:var(--tan);box-shadow:3px 3px 8px var(--sd),-2px -2px 6px var(--sl)}
 .dtab.active .dt-dow,.dtab.active .dt-num{color:#fff}
-.dtab.today-dt .dt-num{background:var(--tan);color:#fff;width:26px;height:26px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-size:13px}
+.dtab.today-dt .dt-num{background:var(--tan);color:#fff;width:26px;height:26px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
 .dtab.active.today-dt .dt-num{background:rgba(255,255,255,.35)}
 .dtab.closed-dt{opacity:.55}
 .cdot{width:4px;height:4px;border-radius:50%;background:var(--closed)}
@@ -156,61 +144,41 @@ body{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
 .ds-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:currentColor}
 
 /* 日表示タイムライン */
-.timeline{position:relative}
-.time-row{display:flex;gap:6px;margin-bottom:8px;align-items:flex-start;min-height:36px}
-.time-row-label{width:44px;flex-shrink:0;font-size:10px;font-weight:700;color:var(--mu);
-  padding-top:8px;text-align:right;padding-right:8px}
-.time-row-cards{display:flex;gap:5px;flex:1;flex-wrap:nowrap;overflow-x:auto;
-  padding-bottom:2px}
-/* 空きスペーサー */
-.time-spacer{min-height:28px}
-.time-spacer-label{color:rgba(156,126,95,.25)}
+.day-timeline{position:relative}
+.day-time-row{display:flex;align-items:flex-start;min-height:32px;
+  border-top:1px solid rgba(192,139,92,.08)}
+.day-time-row.hour-row{border-top-color:rgba(192,139,92,.2)}
+.dtr-label{width:40px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--mu);
+  padding-top:4px;text-align:right;padding-right:6px}
+.dtr-label.dim{color:rgba(156,126,95,.25)}
+.dtr-cards{display:flex;gap:4px;flex:1;flex-wrap:nowrap;overflow-x:auto;
+  padding:3px 0 3px 4px;scrollbar-width:none}
+.dtr-cards::-webkit-scrollbar{display:none}
 
-/* 予定カード */
-.ev-card{border-radius:12px;padding:8px 10px;
-  box-shadow:3px 3px 9px var(--sd),-2px -2px 6px var(--sl);
-  animation:slin .2s ease;position:relative;flex-shrink:0;min-width:64px}
-@keyframes slin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.ev-card.lesson{background:var(--lesson-bg);border-left:3px solid var(--lesson)}
-.ev-card.personal{background:var(--personal-bg);border-left:3px solid var(--personal);width:100%}
-.ev-card.closed{background:var(--closed-bg);border-left:3px solid var(--closed);width:100%}
-.ev-initial{font-size:14px;font-weight:800;line-height:1.3;letter-spacing:-.02em}
-.ev-grade{font-size:9px;font-weight:600;opacity:.6;margin-top:1px}
-.ev-card.lesson .ev-initial{color:var(--lesson)}
-.ev-card.lesson .ev-grade{color:var(--lesson)}
-.ev-card.personal .ev-initial{color:var(--personal);font-size:12px}
-.ev-card.closed .ev-initial{color:var(--closed)}
-/* 時間ラベル（カード内） */
-.ev-time-lbl{font-size:8.5px;font-weight:700;opacity:.55;display:block;margin-bottom:3px}
-
-/* 人数インジケーター */
-.cnt-badge{position:absolute;top:4px;right:5px;font-size:8px;font-weight:800;
-  padding:1px 4px;border-radius:6px;line-height:1.4}
-.cnt-badge.ok{background:rgba(46,125,82,.15);color:var(--lesson)}
-.cnt-badge.full{background:rgba(176,58,46,.2);color:var(--closed)}
-
-.empty-day{text-align:center;padding:40px 20px}
-.empty-day .icon{font-size:32px;margin-bottom:10px}
-.empty-day p{font-size:12.5px;color:var(--mu);line-height:1.8}
+/* 日表示カード */
+.dcard{border-radius:10px;padding:5px 8px;flex-shrink:0;
+  animation:slin .18s ease;position:relative;min-width:58px}
+@keyframes slin{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.dcard.lesson{background:var(--lesson-bg);border-left:3px solid var(--lesson)}
+.dcard.personal{background:var(--personal-bg);border-left:3px solid var(--personal);
+  flex:none;width:calc(100% - 8px)}
+.dcard.closed{background:var(--closed-bg);border-left:3px solid var(--closed);
+  flex:none;width:calc(100% - 8px)}
+.dcard-initial{font-size:13px;font-weight:800;line-height:1.2}
+.dcard-grade{font-size:8.5px;font-weight:600;opacity:.6;margin-top:1px}
+.dcard-time{font-size:8px;opacity:.55;display:block;margin-bottom:2px}
+.dcard.lesson .dcard-initial{color:var(--lesson)}
+.dcard.lesson .dcard-grade{color:var(--lesson)}
+.dcard.personal .dcard-initial{color:var(--personal);font-size:11px}
+.dcard.closed .dcard-initial{color:var(--closed)}
 
 /* 凡例 */
 .legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
-  padding:14px;margin:16px 14px 0;
-  box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl);border-radius:16px}
-.li{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--mu)}
+  padding:12px;margin:14px 10px 0;
+  box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl);border-radius:14px}
+.li{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;color:var(--mu)}
 .ld{width:8px;height:8px;border-radius:50%}
-.sync{text-align:center;font-size:10px;color:rgba(156,126,95,.4);padding:8px 0 0}
-/* 人数バッジ */
-.count-badge{display:inline-flex;align-items:center;justify-content:center;
-  width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:800;
-  position:absolute;top:3px;right:3px;line-height:1}
-.count-1,.count-2,.count-3,.count-4{background:rgba(46,125,82,.2);color:var(--lesson)}
-.count-5,.count-6,.count-7,.count-8,.count-9{background:rgba(176,58,46,.2);color:var(--closed)}
-/* 週表示の時間帯人数 */
-.slot-count{position:absolute;top:2px;right:2px;font-size:8px;font-weight:800;
-  padding:1px 4px;border-radius:6px;line-height:1.4}
-.slot-count.ok{background:rgba(46,125,82,.15);color:var(--lesson)}
-.slot-count.full{background:rgba(176,58,46,.15);color:var(--closed)}
+.sync-note{text-align:center;font-size:10px;color:rgba(156,126,95,.4);padding:8px 0 0}
 </style>
 </head>
 <body>
@@ -240,123 +208,86 @@ body{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
     <div class="li"><div class="ld" style="background:var(--lesson)"></div>授業・教室</div>
     <div class="li"><div class="ld" style="background:var(--personal)"></div>各種業務など</div>
     <div class="li"><div class="ld" style="background:var(--closed)"></div>休業日</div>
-    <div class="li"><div class="ld" style="background:rgba(176,58,46,.3)"></div>満員（5人〜）</div>
   </div>
-  <p class="sync">※ Googleカレンダーと自動同期</p>
+  <p class="sync-note">※ Googleカレンダーと自動同期 <button onclick="forceRefresh()" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--tan);font-weight:700;text-decoration:underline;font-family:inherit">今すぐ更新</button></p>
 </div>
 
 <script>
-// =============================================
-// 設定
-// =============================================
 const GAS = 'https://script.google.com/macros/s/AKfycbyCyQRvex2hkr899np_SryVq7GhEFlqFiHNebdnleh0znn6FLfMk7TPLaFC3rFPmcnvqQ/exec';
-const CACHE_KEY   = 'atelier_events_v2';
-const CACHE_META  = 'atelier_cache_meta_v2';
-const TTL_DAILY   = 24*60*60*1000;   // 1日
-const TTL_WEEKLY  = 7*24*60*60*1000; // 7日
+const CACHE_KEY  = 'atelier_ev_v3';
+const CACHE_META = 'atelier_meta_v3';
+const TTL_DAY    = 24*60*60*1000;
+const TTL_WEEK   = 7*24*60*60*1000;
 
-// =============================================
-// 状態
-// =============================================
 let currentView = 'day';
 let offset = 0;
 let selectedDateKey = null;
-let allEvents = {}; // "YYYY-MM-DD" → [{type,title,time,allDay,sort}]
+let allEvents = {};
 let dataReady = false;
 
-// =============================================
-// ユーティリティ
-// =============================================
+// ===== ユーティリティ =====
 const pad = n => String(n).padStart(2,'0');
 const dateKey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const todayKey = () => dateKey(new Date());
 const fmtTime = d => d ? `${pad(d.getHours())}:${pad(d.getMinutes())}` : '';
+const toM = t => { if(!t)return 0; const [h,m]=(t||'').split(':').map(Number); return h*60+(m||0); };
+function addMonths(d,n){ const r=new Date(d); r.setMonth(r.getMonth()+n); return r; }
 
-function addMonths(d, n){
-  const r = new Date(d);
-  r.setMonth(r.getMonth() + n);
-  return r;
+// ===== キャッシュ =====
+function saveCache(map){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify(map)); }catch(e){} }
+function loadCache(){ try{ const s=localStorage.getItem(CACHE_KEY); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
+function getMeta(){ try{ const s=localStorage.getItem(CACHE_META); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
+function saveMeta(m){ try{ localStorage.setItem(CACHE_META,JSON.stringify(m)); }catch(e){} }
+
+// ===== GAS取得 =====
+async function fetchAll(year,month,months=1){
+  const url=`${GAS}?type=all&year=${year}&month=${month}&months=${months}`;
+  const r=await fetch(url,{signal:AbortSignal.timeout(30000)});
+  if(!r.ok) throw new Error('fetch error');
+  const d=await r.json();
+  if(typeof d!=='object'||Array.isArray(d)) throw new Error('invalid');
+  return d;
 }
 
-// =============================================
-// ローカルストレージ キャッシュ操作
-// =============================================
-function saveCacheEvents(evMap){
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(evMap));
-  } catch(e){ console.warn('cache save failed', e); }
+// ===== データ統合 =====
+function parseDateTime(str){
+  if(!str) return null;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)){
+    const [y,m,d]=str.split('-').map(Number);
+    return new Date(y,m-1,d);
+  }
+  const d=new Date(str);
+  return isNaN(d)?null:d;
 }
 
-function loadCacheEvents(){
-  try {
-    const s = localStorage.getItem(CACHE_KEY);
-    return s ? JSON.parse(s) : {};
-  } catch(e){ return {}; }
-}
-
-function getMeta(){
-  try {
-    const s = localStorage.getItem(CACHE_META);
-    return s ? JSON.parse(s) : {};
-  } catch(e){ return {}; }
-}
-
-function saveMeta(meta){
-  try {
-    localStorage.setItem(CACHE_META, JSON.stringify(meta));
-  } catch(e){}
-}
-
-// =============================================
-// GAS JSON 取得（type=all で3カレンダー一括）
-// =============================================
-async function fetchAllEvents(year, month, months=1){
-  const url = `${GAS}?type=all&year=${year}&month=${month}&months=${months}`;
-  const r = await fetch(url, {signal: AbortSignal.timeout(30000)});
-  if(!r.ok) throw new Error(`fetch error ${r.status}`);
-  const data = await r.json();
-  // {lesson:[...], personal:[...], closed:[...]} の形式
-  if(typeof data !== 'object' || Array.isArray(data)) throw new Error('invalid response');
-  return data;
-}
-
-// =============================================
-// イベントデータをallEventsマップに追記
-// =============================================
-function mergeEvents(evList, calType, map){
+function mergeEvents(evList,calType,map){
   for(const ev of evList){
     if(!ev.start) continue;
-    const s = parseDateTime(ev.start);
-    const e = ev.end ? parseDateTime(ev.end) : null;
+    const s=parseDateTime(ev.start);
+    const e=ev.end?parseDateTime(ev.end):null;
     if(!s) continue;
-
-    let title = ev.title || '';
-    let type  = calType;
-    if(type==='personal') title = '各種業務・出張・私用など';
-    if(type==='closed')   title = '🔴 休業日';
-
-    const isAllDay = ev.allDay;
-    const timeStr = isAllDay ? '' : `${fmtTime(s)}${e ? '〜'+fmtTime(e) : ''}`;
-    const sortN   = isAllDay ? -1 : s.getHours()*60 + s.getMinutes();
-    const k = dateKey(s);
-
-    if(!map[k]) map[k] = [];
-    // 重複チェック（同タイトル・同時刻）
-    const dup = map[k].some(x => x.title===title && x.time===timeStr);
-    if(!dup) map[k].push({type, title, time:timeStr, allDay:isAllDay, sort:sortN});
-
-    // 終日イベントの複数日展開
-    // Google Calendar APIのend日付は「翌日」なので実質終了日はe-1日
-    // 1日だけのイベントはs==e-1日なので展開しない
-    if(isAllDay && e){
-      const eAdj = new Date(e.getFullYear(), e.getMonth(), e.getDate() - 1);
-      if(eAdj > s){
-        let d2 = new Date(s.getFullYear(), s.getMonth(), s.getDate()+1);
-        while(d2 <= eAdj){
-          const k2 = dateKey(d2);
-          if(!map[k2]) map[k2] = [];
-          const dup2 = map[k2].some(x => x.title===title && x.allDay);
-          if(!dup2) map[k2].push({type, title, time:'', allDay:true, sort:-1});
+    let title=ev.title||'', type=calType;
+    if(type==='personal') title='各種業務など';
+    if(type==='closed')   title='休業日';
+    const isAllDay=ev.allDay;
+    const timeStr=isAllDay?'':`${fmtTime(s)}${e?'〜'+fmtTime(e):''}`;
+    const sortN=isAllDay?-1:s.getHours()*60+s.getMinutes();
+    const k=dateKey(s);
+    if(!map[k]) map[k]=[];
+    const dup=map[k].some(x=>x.title===title&&x.time===timeStr&&x.type===type);
+    if(!dup) map[k].push({type,title,time:timeStr,allDay:isAllDay,sort:sortN,
+      startMin:isAllDay?0:s.getHours()*60+s.getMinutes(),
+      endMin:isAllDay?0:(e?e.getHours()*60+e.getMinutes():s.getHours()*60+s.getMinutes()+60)});
+    // 終日複数日展開
+    if(isAllDay&&e){
+      const eAdj=new Date(e.getFullYear(),e.getMonth(),e.getDate()-1);
+      if(eAdj>s){
+        let d2=new Date(s.getFullYear(),s.getMonth(),s.getDate()+1);
+        while(d2<=eAdj){
+          const k2=dateKey(d2);
+          if(!map[k2]) map[k2]=[];
+          const dup2=map[k2].some(x=>x.title===title&&x.allDay&&x.type===type);
+          if(!dup2) map[k2].push({type,title,time:'',allDay:true,sort:-1,startMin:0,endMin:0});
           d2.setDate(d2.getDate()+1);
         }
       }
@@ -364,322 +295,236 @@ function mergeEvents(evList, calType, map){
   }
 }
 
-function parseDateTime(str){
-  if(!str) return null;
-  // 終日イベント: "2026-05-08" 形式（タイムゾーンなし→ローカル時間として解釈）
-  if(/^\d{4}-\d{2}-\d{2}$/.test(str)){
-    const [y,m,d] = str.split('-').map(Number);
-    return new Date(y, m-1, d);
-  }
-  const d = new Date(str);
-  return isNaN(d) ? null : d;
-}
+function sortMap(map){ for(const k in map) map[k].sort((a,b)=>a.sort-b.sort); }
 
-function sortMap(map){
-  for(const k in map) map[k].sort((a,b) => a.sort - b.sort);
-}
+// ===== 3段階キャッシュ =====
+async function loadData(force=false){
+  const now=Date.now(), meta=getMeta();
+  const today=new Date(), year=today.getFullYear(), month=today.getMonth()+1;
+  const cached=loadCache();
+  if(Object.keys(cached).length>0&&!force){ allEvents=cached; dataReady=true; }
 
-// =============================================
-// 3段階キャッシュ戦略でデータ取得
-// =============================================
-async function loadData(forceRefresh = false){
-  const now   = Date.now();
-  const meta  = getMeta();
-  const today = new Date();
-  const year  = today.getFullYear();
-  const month = today.getMonth() + 1;
+  const isFirst=!meta.firstFetch, needWeek=!meta.weeklyFetch||(now-meta.weeklyFetch)>TTL_WEEK;
+  const needDay=!meta.dailyFetch||(now-meta.dailyFetch)>TTL_DAY;
 
-  // --- キャッシュ読み込み ---
-  const cached = loadCacheEvents();
-  if(Object.keys(cached).length > 0 && !forceRefresh){
-    allEvents = cached;
-    dataReady = true;
-  }
-
-  const isFirstTime  = !meta.firstFetch;
-  const needWeekly   = !meta.weeklyFetch  || (now - meta.weeklyFetch)  > TTL_WEEKLY;
-  const needDaily    = !meta.dailyFetch   || (now - meta.dailyFetch)   > TTL_DAILY;
-
-  if(isFirstTime || forceRefresh){
-    // ===== 初回：今年度4月〜翌年3月を3ヶ月ずつ分割取得 =====
-    const fyYear  = month >= 4 ? year : year - 1;
-    const map = {};
-    // 4ブロックに分けて取得（4〜6月、7〜9月、10〜12月、1〜3月）
-    const blocks = [
-      {y: fyYear,   m: 4,  n: 3},
-      {y: fyYear,   m: 7,  n: 3},
-      {y: fyYear,   m: 10, n: 3},
-      {y: fyYear+1, m: 1,  n: 3},
-    ];
-    for(let i=0; i<blocks.length; i++){
-      const b = blocks[i];
-      showSyncBadge(`初回データを取得中… ${i+1}/4`);
-      try {
-        const data = await fetchAllEvents(b.y, b.m, b.n);
-        Object.entries(data).forEach(([calType, evs]) => mergeEvents(evs, calType, map));
-        // 途中経過をキャッシュに保存（途中でも使えるように）
-        sortMap(map);
-        allEvents = {...cached, ...map};
-        saveCacheEvents(allEvents);
-        dataReady = true;
-        if(i===0) render(); // 最初のブロック取得後すぐ表示
-      } catch(e) {
-        console.warn(`block ${i+1} failed`, e);
-      }
+  if(isFirst||force){
+    showBadge('初回データ取得中… 1/4');
+    const map={}, fyY=month>=4?year:year-1;
+    const blocks=[{y:fyY,m:4,n:3},{y:fyY,m:7,n:3},{y:fyY,m:10,n:3},{y:fyY+1,m:1,n:3}];
+    for(let i=0;i<blocks.length;i++){
+      showBadge(`初回データ取得中… ${i+1}/4`);
+      try{
+        const d=await fetchAll(blocks[i].y,blocks[i].m,blocks[i].n);
+        Object.entries(d).forEach(([t,evs])=>mergeEvents(evs,t,map));
+        sortMap(map); allEvents={...cached,...map}; saveCache(allEvents);
+        dataReady=true; if(i===0) render();
+      }catch(e){ console.warn('block fail',e); }
     }
-    meta.firstFetch = now;
-    meta.weeklyFetch = now;
-    meta.dailyFetch = now;
-    saveMeta(meta);
-    hideSyncBadge();
-    render();
-
-  } else if(needWeekly){
-    // ===== 週次：過去1ヶ月＋今後3ヶ月 =====
+    meta.firstFetch=now; meta.weeklyFetch=now; meta.dailyFetch=now; saveMeta(meta);
+    hideBadge(); render();
+  } else if(needWeek){
     if(dataReady) render();
-    showSyncBadge('週次更新中…');
-    const map = {...allEvents};
-    const wkStart = addMonths(today, -1);
-    const wkData = await fetchAllEvents(wkStart.getFullYear(), wkStart.getMonth()+1, 4);
-    Object.entries(wkData).forEach(([calType, evs]) => mergeEvents(evs, calType, map));
-    sortMap(map);
-    allEvents = map;
-    saveCacheEvents(allEvents);
-    meta.weeklyFetch = now;
-    meta.dailyFetch = now;
-    saveMeta(meta);
-    hideSyncBadge();
-    render();
-
-  } else if(needDaily){
-    // ===== 日次：過去1ヶ月＋当月1ヶ月分 =====
+    showBadge('週次更新中…');
+    const map={...allEvents}, ws=addMonths(today,-1);
+    try{
+      const d=await fetchAll(ws.getFullYear(),ws.getMonth()+1,4);
+      Object.entries(d).forEach(([t,evs])=>mergeEvents(evs,t,map));
+      sortMap(map); allEvents=map; saveCache(allEvents);
+    }catch(e){}
+    meta.weeklyFetch=now; meta.dailyFetch=now; saveMeta(meta); hideBadge(); render();
+  } else if(needDay){
     if(dataReady) render();
-    showSyncBadge('本日分を更新中…');
-    const map = {...allEvents};
-    const dlStart = addMonths(today, -1);
-    const dlData = await fetchAllEvents(dlStart.getFullYear(), dlStart.getMonth()+1, 2);
-    Object.entries(dlData).forEach(([calType, evs]) => mergeEvents(evs, calType, map));
-    sortMap(map);
-    allEvents = map;
-    saveCacheEvents(allEvents);
-    meta.dailyFetch = now;
-    saveMeta(meta);
-    hideSyncBadge();
-    render();
-
+    showBadge('本日分更新中…');
+    const map={...allEvents}, ds=addMonths(today,-1);
+    try{
+      const d=await fetchAll(ds.getFullYear(),ds.getMonth()+1,2);
+      Object.entries(d).forEach(([t,evs])=>mergeEvents(evs,t,map));
+      sortMap(map); allEvents=map; saveCache(allEvents);
+    }catch(e){}
+    meta.dailyFetch=now; saveMeta(meta); hideBadge(); render();
   } else {
-    // ===== 通常：キャッシュ即表示 → バックグラウンドで今日から3週間分取得 =====
     if(dataReady) render();
-    setTimeout(async ()=>{
-      try {
-        showSyncBadge('最新を確認中…');
-        const map = {...allEvents};
-        const need2months = today.getDate() > 10;
-        const bgData = await fetchAllEvents(year, month, need2months ? 2 : 1);
-        Object.entries(bgData).forEach(([calType, evs]) => mergeEvents(evs, calType, map));
-        sortMap(map);
-        allEvents = map;
-        saveCacheEvents(allEvents);
-        hideSyncBadge();
-        render();
-      } catch(e){ hideSyncBadge(); console.warn('bg fetch failed', e); }
-    }, 100);
+    setTimeout(async()=>{
+      try{
+        showBadge('最新確認中…');
+        const map={...allEvents}, n2m=today.getDate()>10;
+        const d=await fetchAll(year,month,n2m?2:1);
+        Object.entries(d).forEach(([t,evs])=>mergeEvents(evs,t,map));
+        sortMap(map); allEvents=map; saveCache(allEvents); hideBadge(); render();
+      }catch(e){ hideBadge(); }
+    },200);
   }
 }
 
-// =============================================
-// 同期バッジ
-// =============================================
-function showSyncBadge(msg){
-  let b = document.getElementById('sync-badge');
-  if(!b){
-    b = document.createElement('div');
-    b.id = 'sync-badge';
-    b.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(61,43,26,.85);color:#fff;font-size:11px;font-weight:700;padding:7px 16px;border-radius:9999px;z-index:999;font-family:inherit;white-space:nowrap';
-    document.body.appendChild(b);
-  }
-  b.textContent = '🔄 ' + msg;
-  b.style.display = '';
+function showBadge(msg){
+  let b=document.getElementById('sync-badge');
+  if(!b){ b=document.createElement('div'); b.id='sync-badge';
+    b.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(61,43,26,.85);color:#fff;font-size:11px;font-weight:700;padding:7px 16px;border-radius:9999px;z-index:999;font-family:inherit;white-space:nowrap';
+    document.body.appendChild(b); }
+  b.textContent='🔄 '+msg; b.style.display='';
 }
-function hideSyncBadge(){
-  const b = document.getElementById('sync-badge');
-  if(b) b.style.display = 'none';
-}
+function hideBadge(){ const b=document.getElementById('sync-badge'); if(b)b.style.display='none'; }
 
-// =============================================
-// ビュー切り替え
-// =============================================
+// ===== ビュー切り替え =====
 function setView(v){
-  currentView = v;
-  ['month','week','day'].forEach(x => {
-    document.getElementById(`view-${x}`).style.display = v===x ? '' : 'none';
-    document.getElementById(`vt-${x}`).classList.toggle('active', v===x);
+  currentView=v;
+  ['month','week','day'].forEach(x=>{
+    document.getElementById(`view-${x}`).style.display=v===x?'':'none';
+    document.getElementById(`vt-${x}`).classList.toggle('active',v===x);
   });
-  offset = 0;
-  if(dataReady) render();
+  offset=0; if(dataReady) render();
 }
-
 function render(){
   if(!dataReady) return;
-  if(currentView==='month')     renderMonth();
+  if(currentView==='month') renderMonth();
   else if(currentView==='week') renderWeek();
-  else                          renderDay();
+  else renderDay();
 }
 
-// =============================================
-// 月表示
-// =============================================
+// ===== 月表示 =====
 function renderMonth(){
-  const now = new Date();
-  const base = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-  const dispY = base.getFullYear(), dispM = base.getMonth();
-  document.getElementById('period-label').textContent = `${dispY}年 ${dispM+1}月`;
-
-  const fd  = new Date(dispY, dispM, 1).getDay();
-  const dim = new Date(dispY, dispM+1, 0).getDate();
-  const tKey = todayKey();
-  if(!selectedDateKey) selectedDateKey = tKey;
-
-  const WDS = ['日','月','火','水','木','金','土'];
-  let h = `<div id="view-month" style="padding:12px 12px 0">`;
-  h += `<div class="month-wds">${WDS.map((w,i)=>`<div class="mwd ${i===0?'s':i===6?'sa':''}">${w}</div>`).join('')}</div>`;
-  h += `<div class="month-grid">`;
-  for(let i=0;i<fd;i++) h += `<div class="mcell emp"></div>`;
+  const now=new Date(), base=new Date(now.getFullYear(),now.getMonth()+offset,1);
+  const dY=base.getFullYear(), dM=base.getMonth();
+  document.getElementById('period-label').textContent=`${dY}年 ${dM+1}月`;
+  const fd=new Date(dY,dM,1).getDay(), dim=new Date(dY,dM+1,0).getDate();
+  const tKey=todayKey();
+  if(!selectedDateKey) selectedDateKey=tKey;
+  const WDS=['日','月','火','水','木','金','土'];
+  let h=`<div id="view-month" style="padding:10px 10px 0">`;
+  h+=`<div class="month-wds">${WDS.map((w,i)=>`<div class="mwd ${i===0?'s':i===6?'sa':''}">${w}</div>`).join('')}</div>`;
+  h+=`<div class="month-grid">`;
+  for(let i=0;i<fd;i++) h+=`<div class="mcell emp"></div>`;
   for(let d=1;d<=dim;d++){
-    const dd  = new Date(dispY, dispM, d);
-    const k   = dateKey(dd);
-    const dow = dd.getDay();
-    const evs = allEvents[k]||[];
-    const hasCl = evs.some(e=>e.type==='closed');
-    const hasEv = evs.length>0 && !hasCl;
-    const isTd  = k===tKey, isSel = k===selectedDateKey;
-    const cls = [
-      hasCl?'has-closed':hasEv?'has-events':'no-events',
-      dow===0?'sun-c':dow===6?'sat-c':'',
-      isTd?'today-cell':'', isSel?'selected-cell':''
-    ].join(' ');
-    const types = [...new Set(evs.map(e=>e.type))];
-    const dots  = types.map(t=>`<div class="mdot" style="background:var(--${t})"></div>`).join('');
-    h += `<div class="mcell ${cls}" data-key="${k}" onclick="selectMonthDay('${k}')">${d}<div class="mdot-wrap">${dots}</div></div>`;
+    const dd=new Date(dY,dM,d), k=dateKey(dd), dow=dd.getDay();
+    const evs=allEvents[k]||[];
+    const hasCl=evs.some(e=>e.type==='closed');
+    const isTd=k===tKey, isSel=k===selectedDateKey;
+    const dc=dow===0?'sun-c':dow===6?'sat-c':'';
+    // 月セル内のイベントをコンパクト表示（最大3件）
+    const dispEvs=evs.slice(0,3);
+    const evHtml=dispEvs.map(ev=>{
+      const label=ev.type==='closed'?'休業':ev.type==='personal'?'業務':ev.title.replace(/（.+?）/g,'').slice(0,6);
+      return `<div class="mcell-ev ${ev.type}">${label}</div>`;
+    }).join('');
+    h+=`<div class="mcell ${dc} ${isTd?'today-cell':''} ${isSel?'selected-cell':''}" onclick="selectMonthDay('${k}')">
+      <div class="mcell-num">${d}</div>
+      <div style="width:100%;padding:0 1px">${evHtml}</div>
+    </div>`;
   }
-  h += `</div>`;
-  h += buildMonthDetail(selectedDateKey);
-  h += `</div>`;
-  document.getElementById('view-month').outerHTML = h;
-  document.getElementById('view-month').style.display = '';
+  h+=`</div>${buildMonthDetail(selectedDateKey)}</div>`;
+  document.getElementById('view-month').outerHTML=h;
+  document.getElementById('view-month').style.display='';
 }
 
 function buildMonthDetail(k){
   if(!k) return '';
-  const evs = allEvents[k]||[];
-  const [y,m,d] = k.split('-').map(Number);
-  const dow = new Date(y,m-1,d).getDay();
-  const label = `${m}月${d}日（${'日月火水木金土'[dow]}）`;
-  let body = evs.length===0
-    ? `<div class="md-empty">予定なし</div>`
-    : evs.map(ev=>`
-      <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(192,139,92,.1)">
-        <div style="width:7px;height:7px;border-radius:50%;background:var(--${ev.type});margin-top:4px;flex-shrink:0"></div>
-        <div>
-          <div style="font-size:12.5px;font-weight:700;color:var(--${ev.type})">${ev.title}</div>
-          ${ev.time?`<div style="font-size:10.5px;color:var(--mu)">${ev.time}</div>`:''}
-        </div>
-      </div>`).join('');
+  const evs=allEvents[k]||[];
+  const [y,m,d]=k.split('-').map(Number);
+  const dow=new Date(y,m-1,d).getDay();
+  const label=`${m}月${d}日（${'日月火水木金土'[dow]}）`;
+  let body=evs.length===0?`<div class="md-empty">予定なし</div>`:evs.map(ev=>`
+    <div class="md-ev">
+      <div class="md-dot" style="background:var(--${ev.type})"></div>
+      <div><div class="md-title" style="color:var(--${ev.type})">${ev.title}</div>
+      ${ev.time?`<div class="md-time">${ev.time}</div>`:''}</div>
+    </div>`).join('');
   return `<div class="month-detail"><div class="md-header">${label}</div><div class="md-body">${body}</div></div>`;
 }
 
 function selectMonthDay(k){
-  selectedDateKey = k;
-  const old = document.querySelector('.month-detail');
-  if(old) old.outerHTML = buildMonthDetail(k);
+  selectedDateKey=k;
+  const old=document.querySelector('.month-detail');
+  if(old) old.outerHTML=buildMonthDetail(k);
   document.querySelectorAll('.mcell').forEach(c=>{
-    c.classList.toggle('selected-cell', c.dataset.key===k);
+    c.classList.toggle('selected-cell',c.dataset&&c.dataset.key===k);
   });
+  // onclick経由なのでdata属性なし→再描画
+  renderMonth();
 }
 
-// =============================================
-// 週表示
-// =============================================
+// ===== 週表示（Googleカレンダー風タイムライン） =====
 function renderWeek(){
-  const now = new Date();
-  const mon = new Date(now);
-  mon.setDate(now.getDate() - now.getDay() + 1 + offset*7);
-  const dates = [];
+  const now=new Date(), mon=new Date(now);
+  mon.setDate(now.getDate()-now.getDay()+1+offset*7);
+  const dates=[];
   for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);dates.push(d);}
+  const f=dates[0],l=dates[6];
+  document.getElementById('period-label').textContent=`${f.getMonth()+1}/${f.getDate()}〜${l.getMonth()+1}/${l.getDate()}`;
 
-  const f=dates[0], l=dates[6];
-  document.getElementById('period-label').textContent = `${f.getMonth()+1}/${f.getDate()}〜${l.getMonth()+1}/${l.getDate()}`;
-
-  const tKey = todayKey();
-  const START_H=9, END_H=22, PPM=1.4;
-  const totalMins=(END_H-START_H)*60, totalH=totalMins*PPM;
-  const HOURS=Array.from({length:END_H-START_H+1},(_,i)=>START_H+i);
+  const START=7, END=22, PPM=2.8; // 1分=2.8px
+  const totalH=(END-START)*60*PPM;
   const DOW=['日','月','火','水','木','金','土'];
-  const TW=32;
-
-  function toMins(t){
-    if(!t) return null;
-    const [h,m]=t.split(':').map(Number);
-    return h*60+(m||0)-START_H*60;
-  }
+  const tKey=todayKey();
 
   // ヘッダー
-  let hdrH = `<div style="display:flex;margin-bottom:2px"><div style="width:${TW}px;flex-shrink:0"></div>`;
+  let hdrH=`<div class="week-header"><div class="wh-time"></div>`;
   dates.forEach(d=>{
-    const k=dateKey(d), dow=d.getDay();
-    const evs=allEvents[k]||[];
+    const k=dateKey(d),dow=d.getDay(),evs=allEvents[k]||[];
     const hasCl=evs.some(e=>e.type==='closed'), isTd=k===tKey;
     const dc=dow===0?'sun-col':dow===6?'sat-col':'';
-    hdrH+=`<div class="wg-daycol ${dc} ${isTd?'today-col':''} ${hasCl?'closed-col':''}" style="flex:1;min-width:0">
-      <div class="wg-dow">${DOW[dow]}</div>
-      <div class="wg-dnum">${d.getDate()}</div>
+    hdrH+=`<div class="wh-day ${dc} ${isTd?'today-col':''} ${hasCl?'closed-col':''}">
+      <div class="wh-dow">${DOW[dow]}</div>
+      <div class="wh-num">${d.getDate()}</div>
     </div>`;
   });
-  hdrH += `</div>`;
+  hdrH+=`</div>`;
 
   // 時刻列
-  let timesH = `<div class="wg-times" style="width:${TW}px;height:${totalH}px;flex-shrink:0;position:relative">`;
-  HOURS.forEach(hr=>{ timesH+=`<div class="wg-time-label" style="top:${((hr-START_H)*60)*PPM}px">${hr}:00</div>`; });
-  timesH += `</div>`;
+  let timesH=`<div class="week-times" style="height:${totalH}px;position:relative">`;
+  for(let hr=START;hr<=END;hr++){
+    const top=((hr-START)*60)*PPM;
+    timesH+=`<div class="wt-label" style="top:${top}px">${hr}:00</div>`;
+  }
+  timesH+=`</div>`;
+
+  // 横罫線
+  let hlines='';
+  for(let hr=START;hr<=END;hr++){
+    const top=((hr-START)*60)*PPM;
+    hlines+=`<div class="week-hline hour" style="top:${top}px;position:absolute;left:0;right:0;z-index:1;pointer-events:none"></div>`;
+    if(hr<END){
+      const top2=top+30*PPM;
+      hlines+=`<div class="week-hline" style="top:${top2}px;position:absolute;left:0;right:0;z-index:1;pointer-events:none"></div>`;
+    }
+  }
 
   // 日列
-  let colsH = `<div class="wg-cols" style="height:${totalH}px;position:relative;flex:1">`;
-  HOURS.forEach(hr=>{
-    colsH+=`<div style="position:absolute;top:${((hr-START_H)*60)*PPM}px;left:0;right:0;border-top:1px solid rgba(192,139,92,.1);pointer-events:none;z-index:0"></div>`;
-  });
-
+  let colsH=`<div class="week-cols" style="height:${totalH}px;position:relative">`;
+  colsH+=hlines;
   dates.forEach((d,di)=>{
     const k=dateKey(d), evs=allEvents[k]||[];
     const hasCl=evs.some(e=>e.type==='closed');
-    const pct=100/7, left=di*pct;
-    let colH=`<div class="wg-col" style="position:absolute;top:0;bottom:0;left:${left}%;width:${pct}%;border-left:1px solid rgba(192,139,102,.08)">`;
-
+    const pct=100/7;
+    let colH=`<div class="wday-col" style="position:absolute;top:0;bottom:0;left:${di*pct}%;width:${pct}%">`;
     if(hasCl){
-      colH+=`<div class="wg-closed-bg"><span class="wg-closed-label">休業日</span></div>`;
+      colH+=`<div class="wday-closed"><span>休業日</span></div>`;
     } else {
-      const timed = evs
-        .filter(ev=>!ev.allDay && ev.time && ev.time.includes('〜'))
-        .map(ev=>{ const [s,e]=ev.time.split('〜'); return {...ev, startM:toMins(s), endM:toMins(e)||toMins(s)+60}; })
-        .filter(ev=>ev.startM!==null && ev.startM>=0 && ev.startM<totalMins)
-        .sort((a,b)=>a.startM-b.startM);
-
-      // 時間帯ごとの人数カウント（授業のみ）
-      const wkCount={};
-      timed.filter(ev=>ev.type==='lesson').forEach(ev=>{
-        const t=ev.time.split('〜')[0];
-        wkCount[t]=(wkCount[t]||0)+1;
+      // 時刻付き予定（7〜22時）
+      const timed=evs.filter(ev=>!ev.allDay&&ev.time&&ev.time.includes('〜')&&ev.startMin>=START*60&&ev.startMin<END*60);
+      // 同時刻の予定を列分け（重複処理）
+      const cols=[];
+      timed.sort((a,b)=>a.startMin-b.startMin).forEach(ev=>{
+        let placed=false;
+        for(const col of cols){
+          const last=col[col.length-1];
+          if(last.endMin<=ev.startMin){ col.push(ev); placed=true; break; }
+        }
+        if(!placed) cols.push([ev]);
       });
-
-      // 予定ブロック
-      timed.forEach(ev=>{
-        const top=ev.startM*PPM, ht=Math.max((ev.endM-ev.startM)*PPM,18);
-        const shortName=ev.type==='personal'?'業務':ev.title.replace(/（.+?）/g,'').slice(0,10);
-        const [ts]=ev.time.split('〜');
-        const cnt=ev.type==='lesson'?(wkCount[ts]||1):0;
-        const badge=cnt>0?`<span class="slot-count ${cnt>=5?'full':'ok'}">${cnt}人</span>`:'';
-        colH+=`<div class="wg-ev ${ev.type}" style="top:${top}px;height:${ht}px;position:relative" title="${ev.title}（${ev.time}）">
-          <span class="ev-t">${ts}</span><span class="ev-n">${shortName}</span>${badge}
-        </div>`;
+      const totalCols=Math.max(cols.length,1);
+      cols.forEach((col,ci)=>{
+        col.forEach(ev=>{
+          const top=(ev.startMin-START*60)*PPM;
+          const ht=Math.max((ev.endMin-ev.startMin)*PPM,18);
+          const w=`${100/totalCols}%`;
+          const left=`${ci*(100/totalCols)}%`;
+          const shortName=ev.type==='personal'?'業務':ev.title.replace(/（.+?）/g,'').slice(0,8);
+          const [ts,te]=ev.time.split('〜');
+          colH+=`<div class="wev ${ev.type}" style="top:${top}px;height:${ht}px;left:${left};width:${w}" title="${ev.title}（${ev.time}）">
+            <span class="wev-time">${ts}</span>
+            <span class="wev-name">${shortName}</span>
+          </div>`;
+        });
       });
     }
     colH+=`</div>`;
@@ -687,35 +532,35 @@ function renderWeek(){
   });
   colsH+=`</div>`;
 
-  const h=`<div id="view-week" class="week-wrap">
-    <div class="week-outer">
-      ${hdrH}
-      <div class="wg-body" style="display:flex;position:relative">${timesH}${colsH}</div>
-    </div>
+  const h=`<div id="view-week" style="padding:0;overflow:hidden">
+    ${hdrH}
+    <div class="week-body">${timesH}${colsH}</div>
   </div>`;
   document.getElementById('view-week').outerHTML=h;
   document.getElementById('view-week').style.display='';
+
+  // 現在時刻にスクロール
+  setTimeout(()=>{
+    const wb=document.querySelector('.week-body');
+    if(wb){ const now=new Date(); wb.scrollTop=((now.getHours()-START)*60+now.getMinutes())*PPM-60; }
+  },50);
 }
 
-// =============================================
-// 日表示
-// =============================================
+// ===== 日表示 =====
 function renderDay(){
-  const now=new Date();
-  const mon=new Date(now);
+  const now=new Date(), mon=new Date(now);
   mon.setDate(now.getDate()-now.getDay()+1+offset*7);
   const dates=[];
   for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);dates.push(d);}
-
   const f=dates[0],l=dates[6];
   document.getElementById('period-label').textContent=`${f.getMonth()+1}/${f.getDate()}〜${l.getMonth()+1}/${l.getDate()}`;
-
   const tKey=todayKey();
   if(!selectedDateKey||!dates.find(d=>dateKey(d)===selectedDateKey)){
     selectedDateKey=dates.find(d=>dateKey(d)===tKey)?tKey:dateKey(dates[0]);
   }
-
   const DS=['日','月','火','水','木','金','土'];
+
+  // タブ
   let tabsH=`<div class="day-tabs">`;
   dates.forEach(d=>{
     const k=dateKey(d),dow=d.getDay(),evs=allEvents[k]||[];
@@ -723,7 +568,7 @@ function renderDay(){
     const isTd=k===tKey,isSel=k===selectedDateKey;
     const dc=dow===0?'sun':dow===6?'sat':'';
     const dot=hasCl&&!isSel?'<div class="cdot"></div>':'';
-    tabsH+=`<button class="dtab ${dc} ${isSel?'active':''} ${isTd?'today-dt':''} ${hasCl?'closed-dt':''}" data-key="${k}" onclick="selectDay('${k}')">
+    tabsH+=`<button class="dtab ${dc} ${isSel?'active':''} ${isTd?'today-dt':''} ${hasCl?'closed-dt':''}" onclick="selectDay('${k}')">
       <span class="dt-dow">${DS[dow]}</span><span class="dt-num">${d.getDate()}</span>${dot}
     </button>`;
   });
@@ -737,156 +582,105 @@ function renderDay(){
     ?`<div class="day-status closed"><div class="ds-dot"></div>休業日</div>`
     :`<div class="day-status open"><div class="ds-dot"></div>${sm}月${sdd}日（${'日月火水木金土'[sdow]}）</div>`;
 
-  // 空き時間計算
-  function calcFree(evs){
-    const OS=13*60,OE=21*60;
-    const fmt=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
-    const toM=t=>{ const [h,m]=(t||'').split(':').map(Number); return h*60+(m||0); };
-    const timed=evs
-      .filter(ev=>!ev.allDay&&ev.time&&ev.time.includes('〜'))
-      .map(ev=>{ const [s,e]=ev.time.split('〜'); return {s:toM(s),e:toM(e)||toM(s)+60}; })
-      .filter(ev=>ev.s<OE&&ev.e>OS)
-      .map(ev=>({s:Math.max(ev.s,OS),e:Math.min(ev.e,OE)}))
-      .sort((a,b)=>a.s-b.s);
-    const merged=[];
-    timed.forEach(ev=>{
-      if(merged.length&&ev.s<=merged[merged.length-1].e)
-        merged[merged.length-1].e=Math.max(merged[merged.length-1].e,ev.e);
-      else merged.push({...ev});
-    });
-    const gaps=[];let cur=OS;
-    merged.forEach(ev=>{ if(ev.s-cur>=30)gaps.push({s:cur,e:ev.s}); cur=Math.max(cur,ev.e); });
-    if(OE-cur>=30) gaps.push({s:cur,e:OE});
-    return gaps.map(g=>({time:`${fmt(g.s)}〜${fmt(g.e)}`,mins:g.e-g.s,sort:g.s}));
-  }
+  // タイムライン（7〜22時、30分刻み）
+  const START=7*60, END=22*60, STEP=30;
 
-  let bodyH='';
-  if(evs.length===0){
-    bodyH=`<div class="empty-day"><div class="icon">📭</div><p>この日の予定はありません</p></div>`;
-  } else {
-    const toM2=t=>{ const [h,m]=(t||'').split(':').map(Number); return h*60+(m||0); };
-    // 表示範囲：7時〜22時（夜10時〜翌朝7時は非表示）
-    const filtEvs=evs.filter(ev=>{
-      if(ev.allDay) return true;
-      if(!ev.time||!ev.time.includes('〜')) return false;
-      const sm=toM2(ev.time.split('〜')[0]);
-      return sm>=7*60 && sm<22*60;
-    });
+  // 時刻ごとにグループ化
+  const timeMap={};
+  evs.forEach(ev=>{
+    if(ev.allDay){ if(!timeMap['allday'])timeMap['allday']=[]; timeMap['allday'].push(ev); return; }
+    if(!ev.time||!ev.time.includes('〜')) return;
+    const sm2=ev.startMin;
+    if(sm2<START||sm2>=END) return;
+    // 30分スロットに丸める
+    const slot=Math.floor(sm2/STEP)*STEP;
+    const key=`${pad(Math.floor(slot/60))}:${pad(slot%60)}`;
+    if(!timeMap[key]) timeMap[key]=[];
+    timeMap[key].push(ev);
+  });
 
-    // 時間帯でグループ化（時刻でソート済みのfiltEvs）
-    filtEvs.sort((a,b)=>a.sort-b.sort);
+  let tlH=`<div class="day-timeline">`;
 
-    // 時刻ごとにグループ化
-    const timeGroups={}; // "HH:MM" → [ev,...]
-    const timeOrder=[];
-    const allDayEvs=[];
-    filtEvs.forEach(ev=>{
-      if(ev.allDay){ allDayEvs.push(ev); return; }
-      const t=ev.time?ev.time.split('〜')[0]:'';
-      if(!timeGroups[t]){ timeGroups[t]=[]; timeOrder.push(t); }
-      timeGroups[t].push(ev);
-    });
-
-    bodyH=`<div class="timeline">`;
-
-    // 終日イベント（休業日など）を先頭に
-    allDayEvs.forEach(ev=>{
-      const title=ev.type==='closed'?'🔴 休業日':ev.title;
-      bodyH+=`<div class="time-row" style="margin-bottom:10px">
-        <div class="time-row-label">終日</div>
-        <div class="time-row-cards">
-          <div class="ev-card ${ev.type}" style="width:100%">
-            <span class="ev-initial">${title}</span>
+  // 終日イベント
+  if(timeMap['allday']){
+    timeMap['allday'].forEach(ev=>{
+      tlH+=`<div class="day-time-row hour-row">
+        <div class="dtr-label">終日</div>
+        <div class="dtr-cards">
+          <div class="dcard ${ev.type}" style="width:100%">
+            <div class="dcard-initial">${ev.type==='closed'?'🔴 休業日':ev.title}</div>
           </div>
         </div>
       </div>`;
     });
-
-    // 時間軸：7時〜22時を30分刻みで生成
-    const SLOT_START=7*60, SLOT_END=22*60, SLOT_STEP=30;
-    for(let m=SLOT_START;m<SLOT_END;m+=SLOT_STEP){
-      const hh=String(Math.floor(m/60)).padStart(2,'0');
-      const mm=String(m%60).padStart(2,'0');
-      const t=`${hh}:${mm}`;
-      const evs2=timeGroups[t]||[];
-
-      if(evs2.length===0){
-        // 空きスペース（ラベルのみ、整数時間のみ表示）
-        if(m%60===0){
-          bodyH+=`<div class="time-row time-spacer">
-            <div class="time-row-label time-spacer-label">${t}</div>
-            <div class="time-row-cards"></div>
-          </div>`;
-        }
-        continue;
-      }
-
-      // 人数カウント（授業のみ）
-      const lessonCnt=evs2.filter(e=>e.type==='lesson').length;
-      const isFull=lessonCnt>=5;
-
-      // カード生成
-      let cards='';
-      evs2.forEach(ev=>{
-        if(ev.type==='lesson'){
-          // イニシャルと学年を分離（例: "SHO-HAT（小）"）
-          const match=ev.title.match(/^(.+?)（(.+?)）/);
-          const initial=match?match[1]:ev.title;
-          const grade=match?match[2]:'';
-          const endTime=ev.time?ev.time.split('〜')[1]:'';
-          cards+=`<div class="ev-card lesson">
-            <span class="ev-time-lbl">${t}${endTime?'〜'+endTime:''}</span>
-            <div class="ev-initial">${initial}</div>
-            ${grade?`<div class="ev-grade">（${grade}）</div>`:''}
-          </div>`;
-        } else {
-          const title=ev.type==='personal'?'各種業務など':ev.title;
-          const endTime=ev.time?ev.time.split('〜')[1]:'';
-          cards+=`<div class="ev-card ${ev.type}" style="flex:none;width:100%">
-            <span class="ev-time-lbl">${t}${endTime?'〜'+endTime:''}</span>
-            <div class="ev-initial">${title}</div>
-          </div>`;
-        }
-      });
-
-      // 人数バッジ（授業が1件以上あるとき）
-      const badge=lessonCnt>0
-        ?`<div style="display:flex;align-items:center;padding-top:6px;flex-shrink:0">
-            <span class="cnt-badge ${isFull?'full':'ok'}">${lessonCnt}人</span>
-          </div>`:'';
-
-      bodyH+=`<div class="time-row">
-        <div class="time-row-label">${t}</div>
-        <div class="time-row-cards">${cards}</div>
-        ${badge}
-      </div>`;
-    }
-    bodyH+=`</div>`;
   }
+
+  // 時間スロット
+  for(let m=START;m<END;m+=STEP){
+    const hh=pad(Math.floor(m/60)), mm=pad(m%60);
+    const key=`${hh}:${mm}`;
+    const slotEvs=timeMap[key]||[];
+    const isHour=m%60===0;
+
+    if(slotEvs.length===0){
+      // 空きスペース（1時間ごとにラベル）
+      if(isHour){
+        tlH+=`<div class="day-time-row hour-row">
+          <div class="dtr-label dim">${key}</div>
+          <div class="dtr-cards"></div>
+        </div>`;
+      } else {
+        tlH+=`<div class="day-time-row"><div class="dtr-label dim"></div><div class="dtr-cards"></div></div>`;
+      }
+      continue;
+    }
+
+    // 予定あり
+    let cards='';
+    slotEvs.forEach(ev=>{
+      if(ev.type==='lesson'){
+        const match=ev.title.match(/^(.+?)（(.+?)）/);
+        const initial=match?match[1]:ev.title;
+        const grade=match?match[2]:'';
+        const [,te]=ev.time.split('〜');
+        cards+=`<div class="dcard lesson">
+          <span class="dcard-time">${ev.time}</span>
+          <div class="dcard-initial">${initial}</div>
+          ${grade?`<div class="dcard-grade">（${grade}）</div>`:''}
+        </div>`;
+      } else {
+        cards+=`<div class="dcard ${ev.type}" style="width:100%">
+          <span class="dcard-time">${ev.time}</span>
+          <div class="dcard-initial">${ev.title}</div>
+        </div>`;
+      }
+    });
+
+    tlH+=`<div class="day-time-row ${isHour?'hour-row':''}">
+      <div class="dtr-label">${key}</div>
+      <div class="dtr-cards">${cards}</div>
+    </div>`;
+  }
+  tlH+=`</div>`;
+
   const container=document.getElementById('view-day');
-  container.innerHTML=tabsH+statusH+bodyH;
+  container.innerHTML=tabsH+statusH+tlH;
   container.style.display='';
 }
 
 function selectDay(k){ selectedDateKey=k; renderDay(); }
 
-// =============================================
-// ナビ・起動
-// =============================================
+// ===== ナビ =====
 document.getElementById('btn-prev').addEventListener('click',()=>{ offset--; render(); });
 document.getElementById('btn-next').addEventListener('click',()=>{ offset++; render(); });
 
-// 手動更新ボタン
-document.querySelector('.sync').innerHTML += ' <button onclick="forceRefresh()" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--tan);font-weight:700;text-decoration:underline;font-family:inherit">今すぐ更新</button>';
 function forceRefresh(){
-  dataReady=false;
-  allEvents={};
-  localStorage.removeItem(CACHE_KEY);
-  localStorage.removeItem(CACHE_META);
-  loadData(true).then(()=>{ setView(currentView); });
+  dataReady=false; allEvents={};
+  localStorage.removeItem(CACHE_KEY); localStorage.removeItem(CACHE_META);
+  loadData(true).then(()=>setView(currentView));
 }
 
-// 起動
+// ===== 起動 =====
 setView('day');
 loadData();
 </script>
