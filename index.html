@@ -451,18 +451,20 @@ function renderWeek(){
   const f=dates[0],l=dates[6];
   document.getElementById('period-label').textContent=`${f.getMonth()+1}/${f.getDate()}〜${l.getMonth()+1}/${l.getDate()}`;
 
-  const START=7, END=22, PPM=2.8; // 1分=2.8px
+  const START=7, END=22, PPM=2.8;
   const totalH=(END-START)*60*PPM;
   const DOW=['日','月','火','水','木','金','土'];
   const tKey=todayKey();
+  const TW=40; // 時刻列幅px
 
-  // ヘッダー
-  let hdrH=`<div class="week-header"><div class="wh-time"></div>`;
+  // ヘッダー（時刻列スペーサー付き）
+  let hdrH=`<div class="week-header" style="display:flex;border-bottom:1px solid rgba(192,139,92,.15)">`;
+  hdrH+=`<div style="width:${TW}px;flex-shrink:0"></div>`;
   dates.forEach(d=>{
     const k=dateKey(d),dow=d.getDay(),evs=allEvents[k]||[];
     const hasCl=evs.some(e=>e.type==='closed'), isTd=k===tKey;
     const dc=dow===0?'sun-col':dow===6?'sat-col':'';
-    hdrH+=`<div class="wh-day ${dc} ${isTd?'today-col':''} ${hasCl?'closed-col':''}">
+    hdrH+=`<div class="wh-day ${dc} ${isTd?'today-col':''} ${hasCl?'closed-col':''}" style="flex:1;min-width:0">
       <div class="wh-dow">${DOW[dow]}</div>
       <div class="wh-num">${d.getDate()}</div>
     </div>`;
@@ -470,7 +472,7 @@ function renderWeek(){
   hdrH+=`</div>`;
 
   // 時刻列
-  let timesH=`<div class="week-times" style="height:${totalH}px;position:relative">`;
+  let timesH=`<div style="width:${TW}px;flex-shrink:0;height:${totalH}px;position:relative">`;
   for(let hr=START;hr<=END;hr++){
     const top=((hr-START)*60)*PPM;
     timesH+=`<div class="wt-label" style="top:${top}px">${hr}:00</div>`;
@@ -481,48 +483,46 @@ function renderWeek(){
   let hlines='';
   for(let hr=START;hr<=END;hr++){
     const top=((hr-START)*60)*PPM;
-    hlines+=`<div class="week-hline hour" style="top:${top}px;position:absolute;left:0;right:0;z-index:1;pointer-events:none"></div>`;
+    hlines+=`<div style="position:absolute;top:${top}px;left:0;right:0;border-top:1px solid rgba(192,139,92,.2);pointer-events:none;z-index:1"></div>`;
     if(hr<END){
-      const top2=top+30*PPM;
-      hlines+=`<div class="week-hline" style="top:${top2}px;position:absolute;left:0;right:0;z-index:1;pointer-events:none"></div>`;
+      hlines+=`<div style="position:absolute;top:${top+30*PPM}px;left:0;right:0;border-top:1px dashed rgba(192,139,92,.08);pointer-events:none;z-index:1"></div>`;
     }
   }
 
-  // 日列
-  let colsH=`<div class="week-cols" style="height:${totalH}px;position:relative">`;
-  colsH+=hlines;
+  // 日列（flexで均等配置）
+  let colsH=`<div style="flex:1;display:flex;position:relative;height:${totalH}px">`;
+  colsH+=`<div style="position:absolute;inset:0;pointer-events:none">${hlines}</div>`;
   dates.forEach((d,di)=>{
     const k=dateKey(d), evs=allEvents[k]||[];
     const hasCl=evs.some(e=>e.type==='closed');
-    const pct=100/7;
-    let colH=`<div class="wday-col" style="position:absolute;top:0;bottom:0;left:${di*pct}%;width:${pct}%">`;
+    let colH=`<div style="flex:1;min-width:0;position:relative;border-left:1px solid rgba(192,139,92,.1);height:${totalH}px">`;
     if(hasCl){
       colH+=`<div class="wday-closed"><span>休業日</span></div>`;
     } else {
-      // 時刻付き予定（7〜22時）
       const timed=evs.filter(ev=>!ev.allDay&&ev.time&&ev.time.includes('〜')&&ev.startMin>=START*60&&ev.startMin<END*60);
-      // 同時刻の予定を列分け（重複処理）
+      // 重複列分け
       const cols=[];
       timed.sort((a,b)=>a.startMin-b.startMin).forEach(ev=>{
         let placed=false;
         for(const col of cols){
-          const last=col[col.length-1];
-          if(last.endMin<=ev.startMin){ col.push(ev); placed=true; break; }
+          if(col[col.length-1].endMin<=ev.startMin){ col.push(ev); placed=true; break; }
         }
         if(!placed) cols.push([ev]);
       });
-      const totalCols=Math.max(cols.length,1);
+      const nCols=Math.max(cols.length,1);
       cols.forEach((col,ci)=>{
         col.forEach(ev=>{
           const top=(ev.startMin-START*60)*PPM;
-          const ht=Math.max((ev.endMin-ev.startMin)*PPM,18);
-          const w=`${100/totalCols}%`;
-          const left=`${ci*(100/totalCols)}%`;
-          const shortName=ev.type==='personal'?'業務':ev.title.replace(/（.+?）/g,'').slice(0,8);
-          const [ts,te]=ev.time.split('〜');
-          colH+=`<div class="wev ${ev.type}" style="top:${top}px;height:${ht}px;left:${left};width:${w}" title="${ev.title}（${ev.time}）">
+          const ht=Math.max((ev.endMin-ev.startMin)*PPM,20);
+          const w=`calc(${100/nCols}% - 2px)`;
+          const left=`calc(${ci*100/nCols}% + 1px)`;
+          const name=ev.type==='personal'?'業務':ev.title.replace(/（.+?）/g,'').slice(0,7);
+          const grade=ev.title.match(/（(.+?)）/)?.[1]||'';
+          const [ts]=ev.time.split('〜');
+          colH+=`<div class="wev ${ev.type}" style="position:absolute;top:${top}px;height:${ht}px;left:${left};width:${w};z-index:2" title="${ev.title}（${ev.time}）">
             <span class="wev-time">${ts}</span>
-            <span class="wev-name">${shortName}</span>
+            <span class="wev-name">${name}</span>
+            ${grade&&ht>32?`<span style="font-size:7px;opacity:.6">（${grade}）</span>`:''}
           </div>`;
         });
       });
@@ -534,15 +534,17 @@ function renderWeek(){
 
   const h=`<div id="view-week" style="padding:0;overflow:hidden">
     ${hdrH}
-    <div class="week-body">${timesH}${colsH}</div>
+    <div class="week-body" style="display:flex;overflow-y:auto;max-height:calc(100vh - 180px)">
+      ${timesH}${colsH}
+    </div>
   </div>`;
   document.getElementById('view-week').outerHTML=h;
   document.getElementById('view-week').style.display='';
 
-  // 現在時刻にスクロール
+  // 現在時刻付近にスクロール
   setTimeout(()=>{
     const wb=document.querySelector('.week-body');
-    if(wb){ const now=new Date(); wb.scrollTop=((now.getHours()-START)*60+now.getMinutes())*PPM-60; }
+    if(wb){ const n=new Date(); wb.scrollTop=Math.max(0,((n.getHours()-START)*60+n.getMinutes())*PPM-80); }
   },50);
 }
 
@@ -582,84 +584,88 @@ function renderDay(){
     ?`<div class="day-status closed"><div class="ds-dot"></div>休業日</div>`
     :`<div class="day-status open"><div class="ds-dot"></div>${sm}月${sdd}日（${'日月火水木金土'[sdow]}）</div>`;
 
-  // タイムライン（7〜22時、30分刻み）
-  const START=7*60, END=22*60, STEP=30;
+  // タイムライン（7〜22時、実際の開始時刻でグループ化）
+  const DAY_START=7*60, DAY_END=22*60;
 
-  // 時刻ごとにグループ化
+  // 時刻ごとにグループ化（実際の開始時刻）
   const timeMap={};
+  const allDayEvs=[];
   evs.forEach(ev=>{
-    if(ev.allDay){ if(!timeMap['allday'])timeMap['allday']=[]; timeMap['allday'].push(ev); return; }
+    if(ev.allDay){ allDayEvs.push(ev); return; }
     if(!ev.time||!ev.time.includes('〜')) return;
     const sm2=ev.startMin;
-    if(sm2<START||sm2>=END) return;
-    // 30分スロットに丸める
-    const slot=Math.floor(sm2/STEP)*STEP;
-    const key=`${pad(Math.floor(slot/60))}:${pad(slot%60)}`;
+    if(sm2<DAY_START||sm2>=DAY_END) return;
+    const key=`${pad(Math.floor(sm2/60))}:${pad(sm2%60)}`;
     if(!timeMap[key]) timeMap[key]=[];
     timeMap[key].push(ev);
   });
 
+  // 全タイムキーをソート
+  const allKeys=Object.keys(timeMap).sort();
+
   let tlH=`<div class="day-timeline">`;
 
   // 終日イベント
-  if(timeMap['allday']){
-    timeMap['allday'].forEach(ev=>{
-      tlH+=`<div class="day-time-row hour-row">
-        <div class="dtr-label">終日</div>
-        <div class="dtr-cards">
-          <div class="dcard ${ev.type}" style="width:100%">
-            <div class="dcard-initial">${ev.type==='closed'?'🔴 休業日':ev.title}</div>
-          </div>
+  allDayEvs.forEach(ev=>{
+    tlH+=`<div class="day-time-row hour-row">
+      <div class="dtr-label">終日</div>
+      <div class="dtr-cards">
+        <div class="dcard ${ev.type}" style="width:100%">
+          <div class="dcard-initial">${ev.type==='closed'?'🔴 休業日':ev.title}</div>
         </div>
-      </div>`;
-    });
-  }
-
-  // 時間スロット
-  for(let m=START;m<END;m+=STEP){
-    const hh=pad(Math.floor(m/60)), mm=pad(m%60);
-    const key=`${hh}:${mm}`;
-    const slotEvs=timeMap[key]||[];
-    const isHour=m%60===0;
-
-    if(slotEvs.length===0){
-      // 空きスペース（1時間ごとにラベル）
-      if(isHour){
-        tlH+=`<div class="day-time-row hour-row">
-          <div class="dtr-label dim">${key}</div>
-          <div class="dtr-cards"></div>
-        </div>`;
-      } else {
-        tlH+=`<div class="day-time-row"><div class="dtr-label dim"></div><div class="dtr-cards"></div></div>`;
-      }
-      continue;
-    }
-
-    // 予定あり
-    let cards='';
-    slotEvs.forEach(ev=>{
-      if(ev.type==='lesson'){
-        const match=ev.title.match(/^(.+?)（(.+?)）/);
-        const initial=match?match[1]:ev.title;
-        const grade=match?match[2]:'';
-        const [,te]=ev.time.split('〜');
-        cards+=`<div class="dcard lesson">
-          <span class="dcard-time">${ev.time}</span>
-          <div class="dcard-initial">${initial}</div>
-          ${grade?`<div class="dcard-grade">（${grade}）</div>`:''}
-        </div>`;
-      } else {
-        cards+=`<div class="dcard ${ev.type}" style="width:100%">
-          <span class="dcard-time">${ev.time}</span>
-          <div class="dcard-initial">${ev.title}</div>
-        </div>`;
-      }
-    });
-
-    tlH+=`<div class="day-time-row ${isHour?'hour-row':''}">
-      <div class="dtr-label">${key}</div>
-      <div class="dtr-cards">${cards}</div>
+      </div>
     </div>`;
+  });
+
+  // 7〜22時を1時間刻みで、予定がある時刻はその位置に挿入
+  let processedKeys=new Set();
+  for(let hr=DAY_START;hr<DAY_END;hr+=60){
+    const hrKey=`${pad(Math.floor(hr/60))}:00`;
+    // この時間帯（hr〜hr+60）にある予定キーを全部収集
+    const keysInHour=allKeys.filter(k=>{
+      const m=toM(k);
+      return m>=hr && m<hr+60 && !processedKeys.has(k);
+    });
+
+    if(keysInHour.length===0){
+      // 空き時間
+      tlH+=`<div class="day-time-row hour-row">
+        <div class="dtr-label dim">${hrKey}</div>
+        <div class="dtr-cards"></div>
+      </div>`;
+    } else {
+      // 最初の予定キーで時間ラベルを表示
+      let firstInHour=true;
+      keysInHour.forEach(key=>{
+        processedKeys.add(key);
+        const slotEvs=timeMap[key];
+        const isFirst=firstInHour&&key===hrKey||firstInHour;
+        firstInHour=false;
+        let cards='';
+        slotEvs.forEach(ev=>{
+          if(ev.type==='lesson'){
+            const match=ev.title.match(/^(.+?)（(.+?)）/);
+            const initial=match?match[1]:ev.title;
+            const grade=match?match[2]:'';
+            cards+=`<div class="dcard lesson">
+              <span class="dcard-time">${ev.time}</span>
+              <div class="dcard-initial">${initial}</div>
+              ${grade?`<div class="dcard-grade">（${grade}）</div>`:''}
+            </div>`;
+          } else {
+            cards+=`<div class="dcard ${ev.type}" style="width:100%">
+              <span class="dcard-time">${ev.time}</span>
+              <div class="dcard-initial">${ev.title}</div>
+            </div>`;
+          }
+        });
+        const dispLabel=isFirst?hrKey:key;
+        tlH+=`<div class="day-time-row ${key===hrKey?'hour-row':''}">
+          <div class="dtr-label">${dispLabel}</div>
+          <div class="dtr-cards">${cards}</div>
+        </div>`;
+      });
+    }
   }
   tlH+=`</div>`;
 
