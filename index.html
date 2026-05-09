@@ -329,14 +329,19 @@ function mergeEvents(evList, calType, map){
     if(!dup) map[k].push({type, title, time:timeStr, allDay:isAllDay, sort:sortN});
 
     // 終日イベントの複数日展開
+    // Google Calendar APIのend日付は「翌日」なので実質終了日はe-1日
+    // 1日だけのイベントはs==e-1日なので展開しない
     if(isAllDay && e){
-      let d2 = new Date(s.getFullYear(), s.getMonth(), s.getDate()+1);
-      while(d2 < e){
-        const k2 = dateKey(d2);
-        if(!map[k2]) map[k2] = [];
-        const dup2 = map[k2].some(x => x.title===title && x.allDay);
-        if(!dup2) map[k2].push({type, title, time:'', allDay:true, sort:-1});
-        d2.setDate(d2.getDate()+1);
+      const eAdj = new Date(e.getFullYear(), e.getMonth(), e.getDate() - 1);
+      if(eAdj > s){
+        let d2 = new Date(s.getFullYear(), s.getMonth(), s.getDate()+1);
+        while(d2 <= eAdj){
+          const k2 = dateKey(d2);
+          if(!map[k2]) map[k2] = [];
+          const dup2 = map[k2].some(x => x.title===title && x.allDay);
+          if(!dup2) map[k2].push({type, title, time:'', allDay:true, sort:-1});
+          d2.setDate(d2.getDate()+1);
+        }
       }
     }
   }
