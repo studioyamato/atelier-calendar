@@ -155,26 +155,41 @@ body{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
 .day-status.closed{background:var(--closed-bg);color:var(--closed)}
 .ds-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:currentColor}
 
-.timeline{position:relative;padding-left:44px}
-.tl-line{position:absolute;left:20px;top:0;bottom:0;width:2px;
-  background:linear-gradient(to bottom,transparent,rgba(192,139,92,.18) 5%,rgba(192,139,92,.18) 95%,transparent)}
-.tslot{position:relative;margin-bottom:8px}
-.tlabel{position:absolute;left:-44px;top:50%;transform:translateY(-50%);
-  font-size:10px;font-weight:700;color:var(--mu);width:38px;text-align:right}
-.ev-card{border-radius:13px;padding:10px 13px;
-  box-shadow:3px 3px 9px var(--sd),-2px -2px 6px var(--sl);
-  animation:slin .2s ease}
-@keyframes slin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.ev-card.lesson{background:var(--lesson-bg);border-left:3px solid var(--lesson)}
-.ev-card.personal{background:var(--personal-bg);border-left:3px solid var(--personal)}
-.ev-card.closed{background:var(--closed-bg);border-left:3px solid var(--closed)}
-.ev-time{font-size:10.5px;font-weight:700;opacity:.7;margin-bottom:2px}
-.ev-title{font-size:13px;font-weight:800;line-height:1.3}
-.ev-card.lesson .ev-time,.ev-card.lesson .ev-title{color:var(--lesson)}
-.ev-card.personal .ev-time,.ev-card.personal .ev-title{color:var(--personal)}
-.ev-card.closed .ev-time,.ev-card.closed .ev-title{color:var(--closed)}
-.empty-day{text-align:center;padding:40px 20px}
+/* 日表示タイムライン */
+.timeline{position:relative}
+.time-row{display:flex;gap:6px;margin-bottom:8px;align-items:flex-start;min-height:36px}
+.time-row-label{width:44px;flex-shrink:0;font-size:10px;font-weight:700;color:var(--mu);
+  padding-top:8px;text-align:right;padding-right:8px}
+.time-row-cards{display:flex;gap:5px;flex:1;flex-wrap:nowrap;overflow-x:auto;
+  padding-bottom:2px}
+/* 空きスペーサー */
+.time-spacer{min-height:28px}
+.time-spacer-label{color:rgba(156,126,95,.25)}
 
+/* 予定カード */
+.ev-card{border-radius:12px;padding:8px 10px;
+  box-shadow:3px 3px 9px var(--sd),-2px -2px 6px var(--sl);
+  animation:slin .2s ease;position:relative;flex-shrink:0;min-width:64px}
+@keyframes slin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ev-card.lesson{background:var(--lesson-bg);border-left:3px solid var(--lesson)}
+.ev-card.personal{background:var(--personal-bg);border-left:3px solid var(--personal);width:100%}
+.ev-card.closed{background:var(--closed-bg);border-left:3px solid var(--closed);width:100%}
+.ev-initial{font-size:14px;font-weight:800;line-height:1.3;letter-spacing:-.02em}
+.ev-grade{font-size:9px;font-weight:600;opacity:.6;margin-top:1px}
+.ev-card.lesson .ev-initial{color:var(--lesson)}
+.ev-card.lesson .ev-grade{color:var(--lesson)}
+.ev-card.personal .ev-initial{color:var(--personal);font-size:12px}
+.ev-card.closed .ev-initial{color:var(--closed)}
+/* 時間ラベル（カード内） */
+.ev-time-lbl{font-size:8.5px;font-weight:700;opacity:.55;display:block;margin-bottom:3px}
+
+/* 人数インジケーター */
+.cnt-badge{position:absolute;top:4px;right:5px;font-size:8px;font-weight:800;
+  padding:1px 4px;border-radius:6px;line-height:1.4}
+.cnt-badge.ok{background:rgba(46,125,82,.15);color:var(--lesson)}
+.cnt-badge.full{background:rgba(176,58,46,.2);color:var(--closed)}
+
+.empty-day{text-align:center;padding:40px 20px}
 .empty-day .icon{font-size:32px;margin-bottom:10px}
 .empty-day p{font-size:12.5px;color:var(--mu);line-height:1.8}
 
@@ -225,7 +240,6 @@ body{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
     <div class="li"><div class="ld" style="background:var(--lesson)"></div>授業・教室</div>
     <div class="li"><div class="ld" style="background:var(--personal)"></div>各種業務など</div>
     <div class="li"><div class="ld" style="background:var(--closed)"></div>休業日</div>
-    <div class="li"><div class="ld" style="background:rgba(46,125,82,.3)"></div>空き枠あり</div>
     <div class="li"><div class="ld" style="background:rgba(176,58,46,.3)"></div>満員（5人〜）</div>
   </div>
   <p class="sync">※ Googleカレンダーと自動同期</p>
@@ -759,27 +773,94 @@ function renderDay(){
       return sm>=7*60 && sm<22*60;
     });
 
-    // 時間帯ごとの人数カウント（授業のみ）
-    const countByTime={};
-    filtEvs.filter(e=>e.type==='lesson'&&e.time&&e.time.includes('〜')).forEach(ev=>{
-      const t=ev.time.split('〜')[0];
-      countByTime[t]=(countByTime[t]||0)+1;
+    // 時間帯でグループ化（時刻でソート済みのfiltEvs）
+    filtEvs.sort((a,b)=>a.sort-b.sort);
+
+    // 時刻ごとにグループ化
+    const timeGroups={}; // "HH:MM" → [ev,...]
+    const timeOrder=[];
+    const allDayEvs=[];
+    filtEvs.forEach(ev=>{
+      if(ev.allDay){ allDayEvs.push(ev); return; }
+      const t=ev.time?ev.time.split('〜')[0]:'';
+      if(!timeGroups[t]){ timeGroups[t]=[]; timeOrder.push(t); }
+      timeGroups[t].push(ev);
     });
 
-    bodyH=`<div class="timeline"><div class="tl-line"></div>`;
-    filtEvs.sort((a,b)=>a.sort-b.sort).forEach(ev=>{
-      const tl=ev.time?`<div class="tlabel">${ev.time.split('〜')[0]}</div>`:'';
-      const tm=ev.time?`<div class="ev-time">${ev.time}</div>`:'';
-      // 人数バッジ（授業のみ）
-      let badge='';
-      if(ev.type==='lesson'&&ev.time){
-        const t=ev.time.split('〜')[0];
-        const cnt=countByTime[t]||1;
-        const cls=cnt>=5?'full':'ok';
-        badge=`<span class="count-badge count-${cnt} ${cls}">${cnt}</span>`;
-      }
-      bodyH+=`<div class="tslot">${tl}<div class="ev-card ${ev.type}" style="position:relative">${tm}<div class="ev-title">${ev.title}</div>${badge}</div></div>`;
+    bodyH=`<div class="timeline">`;
+
+    // 終日イベント（休業日など）を先頭に
+    allDayEvs.forEach(ev=>{
+      const title=ev.type==='closed'?'🔴 休業日':ev.title;
+      bodyH+=`<div class="time-row" style="margin-bottom:10px">
+        <div class="time-row-label">終日</div>
+        <div class="time-row-cards">
+          <div class="ev-card ${ev.type}" style="width:100%">
+            <span class="ev-initial">${title}</span>
+          </div>
+        </div>
+      </div>`;
     });
+
+    // 時間軸：7時〜22時を30分刻みで生成
+    const SLOT_START=7*60, SLOT_END=22*60, SLOT_STEP=30;
+    for(let m=SLOT_START;m<SLOT_END;m+=SLOT_STEP){
+      const hh=String(Math.floor(m/60)).padStart(2,'0');
+      const mm=String(m%60).padStart(2,'0');
+      const t=`${hh}:${mm}`;
+      const evs2=timeGroups[t]||[];
+
+      if(evs2.length===0){
+        // 空きスペース（ラベルのみ、整数時間のみ表示）
+        if(m%60===0){
+          bodyH+=`<div class="time-row time-spacer">
+            <div class="time-row-label time-spacer-label">${t}</div>
+            <div class="time-row-cards"></div>
+          </div>`;
+        }
+        continue;
+      }
+
+      // 人数カウント（授業のみ）
+      const lessonCnt=evs2.filter(e=>e.type==='lesson').length;
+      const isFull=lessonCnt>=5;
+
+      // カード生成
+      let cards='';
+      evs2.forEach(ev=>{
+        if(ev.type==='lesson'){
+          // イニシャルと学年を分離（例: "SHO-HAT（小）"）
+          const match=ev.title.match(/^(.+?)（(.+?)）/);
+          const initial=match?match[1]:ev.title;
+          const grade=match?match[2]:'';
+          const endTime=ev.time?ev.time.split('〜')[1]:'';
+          cards+=`<div class="ev-card lesson">
+            <span class="ev-time-lbl">${t}${endTime?'〜'+endTime:''}</span>
+            <div class="ev-initial">${initial}</div>
+            ${grade?`<div class="ev-grade">（${grade}）</div>`:''}
+          </div>`;
+        } else {
+          const title=ev.type==='personal'?'各種業務など':ev.title;
+          const endTime=ev.time?ev.time.split('〜')[1]:'';
+          cards+=`<div class="ev-card ${ev.type}" style="flex:none;width:100%">
+            <span class="ev-time-lbl">${t}${endTime?'〜'+endTime:''}</span>
+            <div class="ev-initial">${title}</div>
+          </div>`;
+        }
+      });
+
+      // 人数バッジ（授業が1件以上あるとき）
+      const badge=lessonCnt>0
+        ?`<div style="display:flex;align-items:center;padding-top:6px;flex-shrink:0">
+            <span class="cnt-badge ${isFull?'full':'ok'}">${lessonCnt}人</span>
+          </div>`:'';
+
+      bodyH+=`<div class="time-row">
+        <div class="time-row-label">${t}</div>
+        <div class="time-row-cards">${cards}</div>
+        ${badge}
+      </div>`;
+    }
     bodyH+=`</div>`;
   }
   const container=document.getElementById('view-day');
