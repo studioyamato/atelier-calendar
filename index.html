@@ -5,12 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>アトリエやまと｜スケジュール</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
-<style>body,*{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}
-@keyframes tipIn{
-  from{opacity:0;transform:translateY(4px)}
-  to{opacity:1;transform:translateY(0)}
-}
-</style>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <style>
 /* ===== ベース ===== */
@@ -288,6 +282,34 @@ html,body{
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--mu)}
 .legend-dot{width:9px;height:9px;border-radius:50%}
 
+/* ツールチップアニメ */
+@keyframes tipIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* スマホ用ボトムパネル */
+#ev-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:99999;
+  background:#3D2B1A;color:#fff;
+  padding:20px 20px 32px;
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -4px 30px rgba(0,0,0,.4);
+  font-family:inherit;
+  animation:slideUp .25s ease;
+  display:none;
+}
+#ev-panel .ep-title{font-size:16px;font-weight:800;line-height:1.3;margin-bottom:8px}
+#ev-panel .ep-time{font-size:14px;font-weight:600;opacity:.85;margin-bottom:16px}
+#ev-panel .ep-close{
+  display:block;width:100%;
+  background:rgba(255,255,255,.15);border:none;color:#fff;
+  font-size:13px;font-weight:700;padding:10px;border-radius:10px;
+  cursor:pointer;font-family:inherit;
+}
+#ev-panel-bg{
+  position:fixed;inset:0;z-index:99998;
+  background:rgba(0,0,0,.3);display:none;
+}
+
 /* 同期バッジ */
 #sync-badge{
   position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
@@ -356,8 +378,8 @@ html,body{
 </head>
 <body>
 
-<div class="app-header">
-  <div class="app-title" id="app-title" style="opacity:0">アトリエやまと スケジュール</div>
+<div class="app-header" id="app-header" style="visibility:hidden">
+  <div class="app-title">アトリエやまと スケジュール</div>
   <button class="sync-btn" onclick="forceRefresh()">更新</button>
 </div>
 
@@ -378,6 +400,12 @@ html,body{
 </div>
 
 <div id="sync-badge"></div>
+<div id="ev-panel-bg" onclick="closePanel()"></div>
+<div id="ev-panel">
+  <div class="ep-title" id="ep-title"></div>
+  <div class="ep-time" id="ep-time"></div>
+  <button class="ep-close" onclick="closePanel()">閉じる</button>
+</div>
 
 <script>
 // =============================================
@@ -497,6 +525,54 @@ function mergeToFcEvents(newData, existing){
 }
 
 // =============================================
+// ツールチップ
+// =============================================
+function hideTip(){
+  const t = document.getElementById('fc-tip');
+  if(t) t.remove();
+  if(window._tipTimer){ clearTimeout(window._tipTimer); window._tipTimer=null; }
+}
+
+function showTip(ev, el){
+  hideTip();
+
+  const title = ev.title;
+  const start = ev.start, end = ev.end;
+  const fmt = d => d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '';
+  const timeStr = (start && !ev.allDay) ? fmt(start)+(end?' 〜 '+fmt(end):'') : '';
+
+  const tip = document.createElement('div');
+  tip.id = 'fc-tip';
+  tip.innerHTML =
+    '<div style="font-size:15px;font-weight:800;line-height:1.3;margin-bottom:'+(timeStr?'8':'4')+'px">'+title+'</div>'+
+    (timeStr?'<div style="font-size:13px;opacity:.85;margin-bottom:12px">'+timeStr+'</div>':'')+
+    '<button id="fc-tip-btn" style="display:block;width:100%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;font-weight:700;padding:8px;border-radius:8px;cursor:pointer;font-family:inherit;letter-spacing:.05em">閉じる</button>';
+
+  const rect = el.getBoundingClientRect();
+  const W=220, H=120;
+  let left = rect.left;
+  let top  = rect.bottom + 8;
+  if(left+W > window.innerWidth-8)  left = window.innerWidth-W-8;
+  if(top+H  > window.innerHeight-8) top  = Math.max(8, rect.top-H-8);
+  if(left < 8) left = 8;
+
+  tip.style.cssText =
+    'position:fixed;z-index:99999;background:#3D2B1A;color:#fff;'+
+    'padding:14px 16px;border-radius:14px;'+
+    'box-shadow:0 8px 28px rgba(0,0,0,.55);'+
+    'font-family:inherit;width:'+W+'px;'+
+    'left:'+left+'px;top:'+top+'px;'+
+    'animation:tipIn .15s ease;';
+
+  document.body.appendChild(tip);
+
+  document.getElementById('fc-tip-btn').onclick = function(){ hideTip(); };
+
+  // 6秒後に自動消去
+  window._tipTimer = setTimeout(hideTip, 6000);
+}
+
+// =============================================
 // バッジ
 // =============================================
 function showBadge(msg){
@@ -553,93 +629,10 @@ function initCalendar(events){
       minute: '2-digit',
       hour12: false,
     },
-    eventMouseEnter: function(info){
-      // スマホはskip
-      if(window.matchMedia('(hover:none)').matches) return;
-      document.querySelectorAll('[id^="fc-tip"]').forEach(t=>t.remove());
-
-      const ev = info.event;
-      const title = ev.title;
-      const start = ev.start, end = ev.end;
-      const fmt = d => d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '';
-      const timeStr = (start && !ev.allDay) ? fmt(start)+(end?' 〜 '+fmt(end):'') : '';
-
-      const tip = document.createElement('div');
-      tip.id = 'fc-tip-hover';
-      tip.style.cssText = 'position:fixed;z-index:99998;background:#3D2B1A;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;font-family:inherit;max-width:200px;font-size:13px;';
-      tip.innerHTML = '<div style="font-weight:800;margin-bottom:'+(timeStr?'4':'0')+'px">'+title+'</div>'+(timeStr?'<div style="opacity:.8;font-size:11px">'+timeStr+'</div>':'');
-      document.body.appendChild(tip);
-
-      const move = e => {
-        let l=e.clientX+14, t=e.clientY-10;
-        tip.style.left=l+'px'; tip.style.top=t+'px';
-        const r=tip.getBoundingClientRect();
-        if(r.right>window.innerWidth-10)  tip.style.left=(e.clientX-r.width-14)+'px';
-        if(r.bottom>window.innerHeight-10) tip.style.top=(e.clientY-r.height-10)+'px';
-      };
-      document.addEventListener('mousemove', move);
-      tip._move = move;
-    },
-    eventMouseLeave: function(info){
-      const tip = document.getElementById('fc-tip-hover');
-      if(tip){
-        if(tip._move) document.removeEventListener('mousemove', tip._move);
-        tip.remove();
-      }
-    },
-    // タップで詳細表示
     eventClick: function(info){
       info.jsEvent.preventDefault();
       info.jsEvent.stopPropagation();
-
-      // 既存ツールチップを全部削除
-      document.querySelectorAll('[id^="fc-tip"]').forEach(t=>t.remove());
-      if(window._tipTimer){ clearTimeout(window._tipTimer); window._tipTimer=null; }
-
-      const ev = info.event;
-      const title = ev.title;
-      const start = ev.start, end = ev.end;
-      const fmt = d => d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '';
-      const timeStr = (start && !ev.allDay) ? fmt(start)+(end?' 〜 '+fmt(end):'') : '';
-
-      const tip = document.createElement('div');
-      tip.id = 'fc-tip-main';
-      tip.innerHTML =
-        '<div style="font-size:14px;font-weight:800;line-height:1.3;margin-bottom:'+(timeStr?'8':'0')+'px">'+title+'</div>'+
-        (timeStr?'<div style="font-size:13px;font-weight:600;opacity:.85;margin-bottom:10px">'+timeStr+'</div>':'')+
-        '<button id="fc-tip-close" style="display:block;width:100%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;font-weight:700;padding:8px;border-radius:8px;cursor:pointer;font-family:inherit">閉じる</button>';
-
-      const rect = info.el.getBoundingClientRect();
-      const tipW = 220;
-      let left = rect.left;
-      let top  = rect.bottom + 8;
-      if(left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
-      if(top + 130 > window.innerHeight - 8)  top  = Math.max(8, rect.top - 138);
-      if(left < 8) left = 8;
-
-      tip.style.cssText =
-        'position:fixed;z-index:99999;'+
-        'background:#3D2B1A;color:#fff;'+
-        'padding:14px 16px;border-radius:14px;'+
-        'box-shadow:0 8px 24px rgba(0,0,0,.5);'+
-        'font-family:inherit;width:'+tipW+'px;'+
-        'left:'+left+'px;top:'+top+'px;'+
-        'animation:tipIn .15s ease;';
-
-      document.body.appendChild(tip);
-
-      document.getElementById('fc-tip-close').addEventListener('click', function(e){
-        e.stopPropagation();
-        tip.remove();
-      });
-      document.getElementById('fc-tip-close').addEventListener('touchend', function(e){
-        e.stopPropagation();
-        e.preventDefault();
-        tip.remove();
-      });
-
-      // 8秒後に自動で消える
-      window._tipTimer = setTimeout(()=>{ tip.remove(); window._tipTimer=null; }, 8000);
+      showTip(info.event, info.el);
     },
     eventContent: function(arg){
       const view = arg.view.type;
@@ -668,8 +661,10 @@ function initCalendar(events){
 
       return { domNodes: [el] };
     },
+    datesSet: function(){
+      hideTip();
+    },
     dayCellDidMount(info){
-      // 日曜・土曜の日付色
       if(info.date.getDay()===0) info.el.style.color='#c0392b';
       if(info.date.getDay()===6) info.el.style.color='#2E7A94';
     },
@@ -678,7 +673,7 @@ function initCalendar(events){
   calendar.render();
   document.getElementById('loading-wrap').style.display = 'none';
   document.getElementById('cal-wrap').style.display = '';
-  var t=document.getElementById('app-title'); if(t) t.style.opacity='1';
+
 }
 
 // =============================================
@@ -782,6 +777,11 @@ function refreshCalendarSource(events){
   if(!calendar) return;
   calendar.getEventSources().forEach(s => s.remove());
   calendar.addEventSource(events);
+}
+
+function closePanel(){
+  document.getElementById("ev-panel").style.display="none";
+  document.getElementById("ev-panel-bg").style.display="none";
 }
 
 function forceRefresh(){
