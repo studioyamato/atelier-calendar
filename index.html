@@ -161,6 +161,18 @@ html,body{
   padding:0 !important;
   line-height:1 !important;
 }
+/* 週・日表示の今日カラム：ヘッダーをタン色で強調 */
+.fc .fc-timegrid .fc-day-today .fc-col-header-cell-cushion,
+.fc .fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion{
+  background:var(--tan) !important;
+  color:#fff !important;
+  border-radius:9999px !important;
+  padding:4px 10px !important;
+  font-size:12px !important;
+}
+.fc .fc-col-header-cell.fc-day-today{
+  background:rgba(192,139,92,.12) !important;
+}
 .fc .fc-day-sun .fc-daygrid-day-number{color:#c0392b !important}
 .fc .fc-day-sat .fc-daygrid-day-number{color:#2E7A94 !important}
 
