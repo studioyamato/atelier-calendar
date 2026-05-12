@@ -554,50 +554,9 @@ function initCalendar(events){
       hour12: false,
     },
     eventMouseEnter: function(info){
-      // 既存ツールチップ削除
-      const old = document.getElementById('fc-tooltip');
-      if(old) old.remove();
-
-      const ev = info.event;
-      const title = ev.title;
-      const start = ev.start;
-      const end   = ev.end;
-      const fmt = d => d ? `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '';
-      const timeStr = start && end ? `${fmt(start)} 〜 ${fmt(end)}` : '';
-
-      const tip = document.createElement('div');
-      tip.id = 'fc-tooltip';
-      tip.style.cssText = 'position:fixed;z-index:9999;background:#3D2B1A;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;font-family:inherit;max-width:200px;';
-      tip.innerHTML = '<div style="font-size:13px;font-weight:800;margin-bottom:4px">'+title+'</div>'+(timeStr?'<div style="font-size:11px;opacity:.8">'+timeStr+'</div>':'');
-      document.body.appendChild(tip);
-
-      // マウス位置に追従
-      const move = e => {
-        tip.style.left = (e.clientX + 14) + 'px';
-        tip.style.top  = (e.clientY - 10) + 'px';
-        // 画面端対応
-        const r = tip.getBoundingClientRect();
-        if(r.right > window.innerWidth - 10)  tip.style.left = (e.clientX - r.width - 14) + 'px';
-        if(r.bottom > window.innerHeight - 10) tip.style.top  = (e.clientY - r.height - 10) + 'px';
-      };
-      document.addEventListener('mousemove', move);
-      tip._move = move;
-    },
-    eventMouseLeave: function(info){
-      // 少し待ってからツールチップを消す（ツールチップ自体にマウスが乗った場合を除く）
-      setTimeout(()=>{
-        const tip = document.querySelector('#fc-tooltip');
-        if(tip && !tip.matches(':hover')){
-          if(tip._move) document.removeEventListener('mousemove', tip._move);
-          tip.remove();
-        }
-      }, 100);
-    },
-    // タップで詳細表示
-    eventClick: function(info){
-      // 既存ツールチップを全部消す
-      const _ot=document.getElementById('fc-tooltip');if(_ot)_ot.remove();
-      if(window._tooltipTimer) clearTimeout(window._tooltipTimer);
+      // スマホはskip
+      if(window.matchMedia('(hover:none)').matches) return;
+      document.querySelectorAll('[id^="fc-tip"]').forEach(t=>t.remove());
 
       const ev = info.event;
       const title = ev.title;
@@ -606,39 +565,81 @@ function initCalendar(events){
       const timeStr = (start && !ev.allDay) ? fmt(start)+(end?' 〜 '+fmt(end):'') : '';
 
       const tip = document.createElement('div');
-      tip.className = 'fc-tooltip';
+      tip.id = 'fc-tip-hover';
+      tip.style.cssText = 'position:fixed;z-index:99998;background:#3D2B1A;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;font-family:inherit;max-width:200px;font-size:13px;';
+      tip.innerHTML = '<div style="font-weight:800;margin-bottom:'+(timeStr?'4':'0')+'px">'+title+'</div>'+(timeStr?'<div style="opacity:.8;font-size:11px">'+timeStr+'</div>':'');
+      document.body.appendChild(tip);
+
+      const move = e => {
+        let l=e.clientX+14, t=e.clientY-10;
+        tip.style.left=l+'px'; tip.style.top=t+'px';
+        const r=tip.getBoundingClientRect();
+        if(r.right>window.innerWidth-10)  tip.style.left=(e.clientX-r.width-14)+'px';
+        if(r.bottom>window.innerHeight-10) tip.style.top=(e.clientY-r.height-10)+'px';
+      };
+      document.addEventListener('mousemove', move);
+      tip._move = move;
+    },
+    eventMouseLeave: function(info){
+      const tip = document.getElementById('fc-tip-hover');
+      if(tip){
+        if(tip._move) document.removeEventListener('mousemove', tip._move);
+        tip.remove();
+      }
+    },
+    // タップで詳細表示
+    eventClick: function(info){
+      info.jsEvent.preventDefault();
+      info.jsEvent.stopPropagation();
+
+      // 既存ツールチップを全部削除
+      document.querySelectorAll('[id^="fc-tip"]').forEach(t=>t.remove());
+      if(window._tipTimer){ clearTimeout(window._tipTimer); window._tipTimer=null; }
+
+      const ev = info.event;
+      const title = ev.title;
+      const start = ev.start, end = ev.end;
+      const fmt = d => d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '';
+      const timeStr = (start && !ev.allDay) ? fmt(start)+(end?' 〜 '+fmt(end):'') : '';
+
+      const tip = document.createElement('div');
+      tip.id = 'fc-tip-main';
       tip.innerHTML =
-        '<div style="font-size:14px;font-weight:800;line-height:1.3;margin-bottom:'+(timeStr?'6':'0')+'px">'+title+'</div>'+
-        (timeStr?'<div style="font-size:12px;font-weight:600;opacity:.85;margin-bottom:8px">'+timeStr+'</div>':'')+
-        '<button style="display:block;width:100%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;font-weight:700;padding:6px;border-radius:8px;cursor:pointer;font-family:inherit">閉じる</button>';
+        '<div style="font-size:14px;font-weight:800;line-height:1.3;margin-bottom:'+(timeStr?'8':'0')+'px">'+title+'</div>'+
+        (timeStr?'<div style="font-size:13px;font-weight:600;opacity:.85;margin-bottom:10px">'+timeStr+'</div>':'')+
+        '<button id="fc-tip-close" style="display:block;width:100%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;font-weight:700;padding:8px;border-radius:8px;cursor:pointer;font-family:inherit">閉じる</button>';
 
       const rect = info.el.getBoundingClientRect();
-      const tipW = 200;
+      const tipW = 220;
       let left = rect.left;
       let top  = rect.bottom + 8;
       if(left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
-      if(top + 120 > window.innerHeight - 8)  top  = rect.top - 128;
+      if(top + 130 > window.innerHeight - 8)  top  = Math.max(8, rect.top - 138);
       if(left < 8) left = 8;
 
       tip.style.cssText =
-        'position:fixed;z-index:9999;'+
+        'position:fixed;z-index:99999;'+
         'background:#3D2B1A;color:#fff;'+
-        'padding:12px 14px;border-radius:14px;'+
-        'box-shadow:0 6px 20px rgba(0,0,0,.4);'+
+        'padding:14px 16px;border-radius:14px;'+
+        'box-shadow:0 8px 24px rgba(0,0,0,.5);'+
         'font-family:inherit;width:'+tipW+'px;'+
         'left:'+left+'px;top:'+top+'px;'+
         'animation:tipIn .15s ease;';
 
-      // 閉じるボタン
-      tip.querySelector('button').addEventListener('click', ()=>tip.remove());
-      tip.querySelector('button').addEventListener('touchend', e=>{
-        e.stopPropagation(); tip.remove();
-      });
-
       document.body.appendChild(tip);
 
-      // 5秒後に自動で消える
-      window._tooltipTimer = setTimeout(()=>tip.remove(), 5000);
+      document.getElementById('fc-tip-close').addEventListener('click', function(e){
+        e.stopPropagation();
+        tip.remove();
+      });
+      document.getElementById('fc-tip-close').addEventListener('touchend', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        tip.remove();
+      });
+
+      // 8秒後に自動で消える
+      window._tipTimer = setTimeout(()=>{ tip.remove(); window._tipTimer=null; }, 8000);
     },
     eventContent: function(arg){
       const view = arg.view.type;
