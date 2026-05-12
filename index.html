@@ -291,6 +291,38 @@ html,body{
   .fc .fc-toolbar-title{font-size:.95rem !important}
   .fc .fc-timegrid-slot{height:24px !important}
 }
+
+/* 折り返し強制 */
+.fc-timegrid-event .fc-event-title{
+  white-space:normal !important;
+  word-break:break-all !important;
+  overflow:hidden !important;
+  line-height:1.25 !important;
+}
+.fc-daygrid-event .fc-event-title{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 週・日表示の予定タイトル折り返し */
+.fc-timegrid-event .fc-event-title{
+  white-space:normal !important;
+  word-break:break-all !important;
+  overflow:hidden !important;
+  line-height:1.25 !important;
+  font-size:10px !important;
+}
+.fc-timegrid-event .fc-event-main-frame{
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+.fc-timegrid-event .fc-event-time{
+  flex-shrink:0 !important;
+  font-size:8px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+}
 </style>
 </head>
 <body>
@@ -509,6 +541,15 @@ function initCalendar(events){
       if(info.date.getDay()===0) info.el.style.color='#c0392b';
       if(info.date.getDay()===6) info.el.style.color='#2E7A94';
     },
+  });
+
+  // 予定レンダリング後に折り返しを強制
+  calendar.on('eventDidMount', function(info){
+    if(info.view.type === 'dayGridMonth') return;
+    info.el.querySelectorAll('.fc-event-title,.fc-event-title-container').forEach(t=>{
+      t.setAttribute('style', t.getAttribute('style')||'' +
+        ';white-space:normal !important;word-break:break-all !important;overflow:hidden !important;line-height:1.25 !important;font-size:10px !important;font-weight:800 !important;');
+    });
   });
 
   calendar.render();
