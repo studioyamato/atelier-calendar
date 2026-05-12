@@ -144,11 +144,15 @@ html,body{
   background:var(--tan) !important;
   color:#fff !important;
   border-radius:50% !important;
-  width:24px !important;
-  height:24px !important;
+  width:26px !important;
+  height:26px !important;
+  min-width:26px !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
+  font-size:11px !important;
+  padding:0 !important;
+  line-height:1 !important;
 }
 .fc .fc-day-sun .fc-daygrid-day-number{color:#c0392b !important}
 .fc .fc-day-sat .fc-daygrid-day-number{color:#2E7A94 !important}
@@ -336,8 +340,8 @@ function convertToFcEvents(data){
   const seen = new Set();
 
   Object.entries(data).forEach(([calType, evList])=>{
-    evList.forEach(ev=>{
-      if(!ev.start) return;
+    for(const ev of evList){
+      if(!ev.start) continue;
 
       let title = ev.title || '';
       let className = 'fc-event-lesson';
@@ -352,42 +356,40 @@ function convertToFcEvents(data){
 
       // 重複除去
       const key = `${calType}|${title}|${ev.start}|${ev.end}`;
-      if(seen.has(key)) return;
+      if(seen.has(key)) continue;
       seen.add(key);
+
+      if(ev.allDay && calType === 'closed'){
+        // 休業日：背景色＋ラベルを1回ずつだけ追加
+        events.push({
+          display: 'background',
+          backgroundColor: 'rgba(176,58,46,.1)',
+          start: ev.start,
+          end:   ev.end,
+          allDay: true,
+          classNames: ['fc-event-closed'],
+        });
+        events.push({
+          title: '🔴 休業日',
+          start: ev.start,
+          end:   ev.end,
+          allDay: true,
+          classNames: ['fc-event-closed'],
+          display: 'block',
+        });
+        continue;
+      }
 
       const fcEv = {
         title,
         classNames: [className],
-        display: ev.allDay ? 'background' : 'block',
+        start: ev.start,
+        end:   ev.end,
+        allDay: ev.allDay || false,
+        display: 'block',
       };
-
-      if(ev.allDay){
-        // 終日イベント：end日付はAPIが翌日を返すのでそのまま使う
-        fcEv.start = ev.start;
-        fcEv.end   = ev.end;
-        fcEv.allDay = true;
-        // 休業日は背景色で表示
-        if(calType === 'closed'){
-          fcEv.display = 'background';
-          fcEv.backgroundColor = 'rgba(176,58,46,.08)';
-          fcEv.classNames = ['fc-event-closed'];
-          // 休業日ラベルも別途追加
-          events.push({
-            title: '🔴 休業日',
-            start: ev.start,
-            allDay: true,
-            classNames: ['fc-event-closed'],
-            display: 'block',
-          });
-        }
-      } else {
-        fcEv.start = ev.start;
-        fcEv.end   = ev.end;
-        fcEv.allDay = false;
-      }
-
       events.push(fcEv);
-    });
+    }
   });
 
   return events;
@@ -427,6 +429,7 @@ function initCalendar(events){
 
   calendar = new FullCalendar.Calendar(el, {
     locale: 'ja',
+    allDayText: '終日',
     initialView: window.innerWidth < 600 ? 'timeGridDay' : 'dayGridMonth',
     headerToolbar:{
       left:  'prev,next today',
