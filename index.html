@@ -695,28 +695,36 @@ async function loadData(force=false){
   const needDay  = !meta.dailyFetch  || (now - meta.dailyFetch)  > TTL_DAY;
 
   if(isFirst || force){
-    // ===== 初回：まず当月2ヶ月分を即取得してカレンダー表示 =====
+    // ===== 初回／強制更新：当月2ヶ月分を取得してカレンダー表示 =====
     document.getElementById('loading-progress').textContent = '取得中…';
-    let allEvs = [];
+    let allEvs = [...cached]; // キャッシュがあれば先に使う
 
-    // Step1: 当月〜翌月を即取得（必ず表示する）
     try{
       const d = await fetchAll(year, month, 2);
       allEvs = mergeToFcEvents(d, allEvs);
-    }catch(e){ console.warn('initial fetch fail', e); }
+    }catch(e){
+      console.warn('initial fetch fail', e);
+    }
 
-    // キャッシュがあれば合わせて表示
-    if(cached.length > 0) allEvs = mergeToFcEvents({}, cached).length ? cached : allEvs;
+    // ← 必ずここでカレンダーを表示（fetchが失敗してもキャッシュか空で表示）
+    if(!calendar){
+      initCalendar(allEvs);
+    } else {
+      refreshCalendarSource(allEvs);
+      document.getElementById('loading-wrap').style.display = 'none';
+      document.getElementById('cal-wrap').style.display = '';
+    }
 
     saveCache(allEvs);
-    initCalendar(allEvs); // ← 必ずここで表示
+    allFcEvents = allEvs;
     meta.firstFetch  = now;
     meta.weeklyFetch = now;
     meta.dailyFetch  = now;
     saveMeta(meta);
     hideBadge();
+    document.getElementById('loading-progress').textContent = '';
 
-    // Step2: 残り（年度全体）をバックグラウンドで取得
+    // Step2: 年間データをバックグラウンドで取得
     setTimeout(async()=>{
       const fyY = month >= 4 ? year : year - 1;
       const blocks = [
@@ -725,19 +733,19 @@ async function loadData(force=false){
         {y:fyY,   m:10, n:3},
         {y:fyY+1, m:1,  n:3},
       ];
-      let bgEvs = [...allEvs];
+      let bgEvs = [...allFcEvents];
       for(let i=0; i<blocks.length; i++){
         try{
-          showBadge(`年間データ取得中 ${i+1}/4`);
+          showBadge('年間データ取得中 '+(i+1)+'/4');
           const d = await fetchAll(blocks[i].y, blocks[i].m, blocks[i].n);
           bgEvs = mergeToFcEvents(d, bgEvs);
           saveCache(bgEvs);
           refreshCalendarSource(bgEvs);
+          allFcEvents = bgEvs;
         }catch(e){ console.warn('bg block fail', e); }
       }
-      allFcEvents = bgEvs;
       hideBadge();
-    }, 1000);
+    }, 1500);
 
   } else {
     // キャッシュで即表示
@@ -795,10 +803,8 @@ function forceRefresh(){
   localStorage.removeItem(CACHE_KEY);
   localStorage.removeItem(CACHE_META);
   allFcEvents = [];
-  if(calendar){ calendar.destroy(); calendar = null; }
-  document.getElementById('loading-wrap').style.display = '';
-  document.getElementById('cal-wrap').style.display = 'none';
-  document.getElementById('loading-progress').textContent = '';
+  // カレンダーは破棄せず再利用（loading画面を出さない）
+  showBadge('更新中…');
   loadData(true);
 }
 
