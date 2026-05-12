@@ -645,7 +645,7 @@ function initCalendar(events){
 
       // 5秒後に自動で消える
       window._tooltipTimer = setTimeout(()=>tip.remove(), 5000);
-    }
+    },
     eventContent: function(arg){
       const view = arg.view.type;
       const ev = arg.event;
