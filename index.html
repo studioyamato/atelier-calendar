@@ -543,15 +543,6 @@ function initCalendar(events){
     },
   });
 
-  // 予定レンダリング後に折り返しを強制
-  calendar.on('eventDidMount', function(info){
-    if(info.view.type === 'dayGridMonth') return;
-    info.el.querySelectorAll('.fc-event-title,.fc-event-title-container').forEach(t=>{
-      t.setAttribute('style', t.getAttribute('style')||'' +
-        ';white-space:normal !important;word-break:break-all !important;overflow:hidden !important;line-height:1.25 !important;font-size:10px !important;font-weight:800 !important;');
-    });
-  });
-
   calendar.render();
   document.getElementById('loading-wrap').style.display = 'none';
   document.getElementById('cal-wrap').style.display = '';
@@ -670,6 +661,33 @@ function forceRefresh(){
   document.getElementById('loading-progress').textContent = '';
   loadData(true);
 }
+
+// =============================================
+// 週・日表示の折り返しを常時強制（MutationObserver）
+// =============================================
+function forceWrap(){
+  const wrap = document.getElementById('cal-wrap');
+  if(!wrap) return;
+  wrap.querySelectorAll(
+    '.fc-timegrid-event .fc-event-title, .fc-timegrid-event .fc-event-title-container'
+  ).forEach(el=>{
+    el.style.setProperty('white-space','normal','important');
+    el.style.setProperty('word-break','break-all','important');
+    el.style.setProperty('overflow','hidden','important');
+    el.style.setProperty('line-height','1.25','important');
+    el.style.setProperty('font-size','10px','important');
+    el.style.setProperty('font-weight','800','important');
+  });
+}
+
+// カレンダーの変化を監視して毎回適用
+const observer = new MutationObserver(()=>{ forceWrap(); });
+document.addEventListener('DOMContentLoaded', ()=>{
+  const wrap = document.getElementById('cal-wrap');
+  if(wrap){
+    observer.observe(wrap, {childList:true, subtree:true});
+  }
+});
 
 // =============================================
 // 起動
