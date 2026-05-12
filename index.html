@@ -803,9 +803,53 @@ function forceRefresh(){
   localStorage.removeItem(CACHE_KEY);
   localStorage.removeItem(CACHE_META);
   allFcEvents = [];
-  // カレンダーは破棄せず再利用（loading画面を出さない）
   showBadge('更新中…');
-  loadData(true);
+
+  const today = new Date();
+  const year  = today.getFullYear();
+  const month = today.getMonth() + 1;
+
+  // 当月2ヶ月分を取得してカレンダーを更新
+  fetchAll(year, month, 2).then(d=>{
+    const evs = mergeToFcEvents(d, []);
+    allFcEvents = evs;
+    saveCache(evs);
+    // キャッシュメタを更新
+    saveMeta({firstFetch:Date.now(),weeklyFetch:Date.now(),dailyFetch:Date.now()});
+    // カレンダー更新
+    if(calendar){
+      refreshCalendarSource(evs);
+    } else {
+      initCalendar(evs);
+    }
+    hideBadge();
+
+    // バックグラウンドで年間データ取得
+    const fyY = month >= 4 ? year : year - 1;
+    const blocks = [
+      {y:fyY,   m:4,  n:3},{y:fyY,   m:7,  n:3},
+      {y:fyY,   m:10, n:3},{y:fyY+1, m:1,  n:3},
+    ];
+    (async()=>{
+      let bgEvs = [...evs];
+      for(let i=0;i<blocks.length;i++){
+        try{
+          showBadge('年間データ取得中 '+(i+1)+'/4');
+          const bd = await fetchAll(blocks[i].y,blocks[i].m,blocks[i].n);
+          bgEvs = mergeToFcEvents(bd, bgEvs);
+          saveCache(bgEvs);
+          refreshCalendarSource(bgEvs);
+          allFcEvents = bgEvs;
+        }catch(e){}
+      }
+      hideBadge();
+    })();
+  }).catch(e=>{
+    console.warn('forceRefresh fail', e);
+    hideBadge();
+    // fetchが失敗してもカレンダーは表示する
+    if(!calendar) initCalendar([]);
+  });
 }
 
 // =============================================
