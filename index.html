@@ -677,10 +677,21 @@ function initCalendar(events){
     },
   });
 
+  // cal-wrapを非表示のまま描画
+  const calWrap = document.getElementById('cal-wrap');
+  calWrap.style.display = '';
+  calWrap.style.visibility = 'hidden';
   calendar.render();
-  document.getElementById('loading-wrap').style.display = 'none';
-  document.getElementById('cal-wrap').style.display = '';
 
+  // 2フレーム後に完全表示（描画ゴミが消えてから）
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.getElementById('loading-wrap').style.display = 'none';
+      calWrap.style.visibility = 'visible';
+      var h=document.getElementById('app-header'); if(h) h.style.display='flex';
+      var l=document.getElementById('legend-area'); if(l) l.style.display='';
+    });
+  });
 }
 
 // =============================================
