@@ -159,6 +159,580 @@ html,body{
 
 /* 週・日表示の時間軸 */
 .fc .fc-timegrid-slot{
+  height:34px !important;
+}
+.fc .fc-timegrid-slot-label{
+  font-size:9px !important;
+  font-weight:700 !important;
+  color:var(--mu) !important;
+}
+.fc .fc-timegrid-now-indicator-line{
+  border-color:var(--tan) !important;
+  border-width:2px !important;
+}
+.fc .fc-timegrid-now-indicator-arrow{
+  border-top-color:var(--tan) !important;
+  border-bottom-color:var(--tan) !important;
+}
+/* 週表示：同時間帯の予定を細くして文字が重ならないように */
+.fc-timegrid-event{
+  min-width:0 !important;
+}
+.fc-timegrid-col-events{
+  margin:0 1px !important;
+}
+
+/* 予定イベント共通 */
+.fc .fc-event{
+  border:none !important;
+  border-radius:7px !important;
+  font-family:'M PLUS Rounded 1c',sans-serif !important;
+  font-size:9.5px !important;
+  font-weight:700 !important;
+  cursor:default !important;
+  box-shadow:1px 2px 5px rgba(0,0,0,.12) !important;
+  overflow:hidden !important;
+}
+.fc .fc-event-title{
+  font-weight:800 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  display:block !important;
+}
+.fc .fc-event-time{
+  font-size:8px !important;
+  opacity:.85 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+}
+/* 週表示で重なり防止：予定を小さめに */
+.fc-timegrid-event .fc-event-main{
+  padding:1px 3px !important;
+}
+.fc-timegrid-event-harness{
+  margin-right:1px !important;
+}
+
+/* イベントカラー */
+.fc-event-lesson{
+  background:rgba(46,125,82,.55) !important;
+  color:#fff !important;
+  border-left:3px solid var(--lesson) !important;
+}
+.fc-event-personal{
+  background:rgba(123,94,167,.5) !important;
+  color:#fff !important;
+  border-left:3px solid var(--personal) !important;
+}
+.fc-event-closed{
+  background:rgba(176,58,46,.45) !important;
+  color:#fff !important;
+  border-left:3px solid var(--closed) !important;
+}
+
+/* グリッド線 */
+.fc .fc-scrollgrid{
+  border-color:rgba(192,139,92,.15) !important;
+  border-radius:14px !important;
+  overflow:hidden !important;
+  box-shadow:6px 6px 18px var(--sd),-4px -4px 12px var(--sl) !important;
+}
+.fc td,.fc th{
+  border-color:rgba(192,139,92,.12) !important;
+}
+.fc .fc-timegrid-slot-minor{
+  border-top-style:dashed !important;
+  border-color:rgba(192,139,92,.06) !important;
+}
+
+/* ローディング */
+#loading-wrap{
+  text-align:center;padding:60px 20px;
+}
+.spin{
+  width:32px;height:32px;
+  border:3px solid rgba(192,139,92,.2);
+  border-top-color:var(--tan);
+  border-radius:50%;
+  animation:sp .75s linear infinite;
+  margin:0 auto 14px;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+#loading-wrap p{font-size:13px;color:var(--mu);margin-top:8px}
+#loading-progress{font-size:12px;color:var(--tan);font-weight:700;margin-top:4px}
+
+/* 凡例 */
+.legend{
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  padding:12px 16px;margin:10px 12px 0;
+  background:var(--bg);
+  box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl);
+  border-radius:14px;
+}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--mu)}
+.legend-dot{width:9px;height:9px;border-radius:50%}
+
+/* 同期バッジ */
+#sync-badge{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:rgba(61,43,26,.85);color:#fff;
+  font-size:11px;font-weight:700;
+  padding:8px 18px;border-radius:9999px;
+  z-index:999;white-space:nowrap;display:none;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+}
+
+/* レスポンシブ */
+@media(max-width:600px){
+  .fc .fc-toolbar{gap:6px}
+  .fc .fc-button{font-size:10px !important;padding:5px 10px !important}
+  .fc .fc-toolbar-title{font-size:.95rem !important}
+  .fc .fc-timegrid-slot{height:24px !important}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">🎨 アトリエやまと スケジュール</div>
+  <button class="sync-btn" onclick="forceRefresh()">🔄 更新</button>
+</div>
+
+<div id="loading-wrap">
+  <div class="spin"></div>
+  <p>カレンダーを読み込み中…</p>
+  <p id="loading-progress"></p>
+</div>
+
+<div id="cal-wrap" style="display:none">
+  <div id="calendar"></div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--lesson)"></div>授業・教室</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--personal)"></div>各種業務など</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--closed)"></div>休業日</div>
+</div>
+
+<div id="sync-badge"></div>
+
+<script>
+// =============================================
+// 設定
+// =============================================
+const GAS = 'https://script.google.com/macros/s/AKfycbyCyQRvex2hkr899np_SryVq7GhEFlqFiHNebdnleh0znn6FLfMk7TPLaFC3rFPmcnvqQ/exec';
+const CACHE_KEY  = 'atelier_fc_v1';
+const CACHE_META = 'atelier_fc_meta_v1';
+const TTL_DAY    = 24*60*60*1000;
+const TTL_WEEK   = 7*24*60*60*1000;
+
+let calendar = null;
+let allFcEvents = [];
+
+// =============================================
+// キャッシュ
+// =============================================
+function saveCache(evs){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(evs)); }catch(e){} }
+function loadCache(){ try{ const s=localStorage.getItem(CACHE_KEY); return s?JSON.parse(s):[]; }catch(e){ return []; } }
+function getMeta(){ try{ const s=localStorage.getItem(CACHE_META); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
+function saveMeta(m){ try{ localStorage.setItem(CACHE_META, JSON.stringify(m)); }catch(e){} }
+
+// =============================================
+// GAS取得
+// =============================================
+async function fetchAll(year, month, months=1){
+  const url = `${GAS}?type=all&year=${year}&month=${month}&months=${months}`;
+  const r = await fetch(url, {signal: AbortSignal.timeout(30000)});
+  if(!r.ok) throw new Error('fetch error');
+  const d = await r.json();
+  if(typeof d !== 'object' || Array.isArray(d)) throw new Error('invalid');
+  return d;
+}
+
+// =============================================
+// データ変換（GAS → FullCalendarイベント）
+// =============================================
+function convertToFcEvents(data){
+  const events = [];
+  const seen = new Set();
+
+  Object.entries(data).forEach(([calType, evList])=>{
+    for(const ev of evList){
+      if(!ev.start) continue;
+
+      let title = ev.title || '';
+      let className = 'fc-event-lesson';
+
+      if(calType === 'personal'){
+        title = '各種業務など';
+        className = 'fc-event-personal';
+      } else if(calType === 'closed'){
+        title = '休業日';
+        className = 'fc-event-closed';
+      }
+
+      // 重複除去
+      const key = `${calType}|${title}|${ev.start}|${ev.end}`;
+      if(seen.has(key)) continue;
+      seen.add(key);
+
+      if(ev.allDay && calType === 'closed'){
+        // 休業日：背景色＋ラベルを1回ずつだけ追加
+        events.push({
+          display: 'background',
+          backgroundColor: 'rgba(176,58,46,.1)',
+          start: ev.start,
+          end:   ev.end,
+          allDay: true,
+          classNames: ['fc-event-closed'],
+        });
+        events.push({
+          title: '🔴 休業日',
+          start: ev.start,
+          end:   ev.end,
+          allDay: true,
+          classNames: ['fc-event-closed'],
+          display: 'block',
+        });
+        continue;
+      }
+
+      const fcEv = {
+        title,
+        classNames: [className],
+        start: ev.start,
+        end:   ev.end,
+        allDay: ev.allDay || false,
+        display: 'block',
+      };
+      events.push(fcEv);
+    }
+  });
+
+  return events;
+}
+
+// =============================================
+// マージ（既存イベントに新しいデータを統合）
+// =============================================
+function mergeToFcEvents(newData, existing){
+  const newEvs = convertToFcEvents(newData);
+  const seen = new Set(existing.map(e=>`${e.title}|${e.start}|${e.end||''}`));
+  const merged = [...existing];
+  newEvs.forEach(ev=>{
+    const key = `${ev.title}|${ev.start}|${ev.end||''}`;
+    if(!seen.has(key)){ seen.add(key); merged.push(ev); }
+  });
+  return merged;
+}
+
+// =============================================
+// バッジ
+// =============================================
+function showBadge(msg){
+  const b = document.getElementById('sync-badge');
+  b.textContent = '🔄 ' + msg;
+  b.style.display = 'block';
+}
+function hideBadge(){
+  document.getElementById('sync-badge').style.display = 'none';
+}
+
+// =============================================
+// カレンダー初期化
+// =============================================
+function initCalendar(events){
+  const el = document.getElementById('calendar');
+
+  calendar = new FullCalendar.Calendar(el, {
+    locale: 'ja',
+    allDayText: '終日',
+    initialView: window.innerWidth < 600 ? 'timeGridDay' : 'dayGridMonth',
+    headerToolbar:{
+      left:  'prev,next today',
+      center: 'title',
+      right:  'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    buttonText:{
+      today: '今日',
+      month: '月',
+      week:  '週',
+      day:   '日',
+    },
+    slotMinTime: '09:00:00',
+    slotMaxTime: '22:00:00',
+    slotDuration: '00:30:00',
+    slotHeight: 32,
+    slotLabelInterval: '01:00',
+    scrollTime: '13:00:00',
+    nowIndicator: true,
+    dayMaxEvents: 4,
+    height: 'auto',
+    expandRows: true,
+    events: events,
+    eventTimeFormat:{
+      hour:   '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    },
+    dayCellDidMount(info){
+      // 日曜・土曜の日付色
+      if(info.date.getDay()===0) info.el.style.color='#c0392b';
+      if(info.date.getDay()===6) info.el.style.color='#2E7A94';
+    },
+  });
+
+  calendar.render();
+  document.getElementById('loading-wrap').style.display = 'none';
+  document.getElementById('cal-wrap').style.display = '';
+}
+
+// =============================================
+// データロード（3段階キャッシュ）
+// =============================================
+async function loadData(force=false){
+  const now   = Date.now();
+  const meta  = getMeta();
+  const today = new Date();
+  const year  = today.getFullYear();
+  const month = today.getMonth() + 1;
+
+  // キャッシュ読み込み
+  const cached = loadCache();
+  const isFirst  = !meta.firstFetch;
+  const needWeek = !meta.weeklyFetch || (now - meta.weeklyFetch) > TTL_WEEK;
+  const needDay  = !meta.dailyFetch  || (now - meta.dailyFetch)  > TTL_DAY;
+
+  if(isFirst || force){
+    // ===== 初回：今年度4月〜翌年3月を4ブロックで取得 =====
+    const fyY = month >= 4 ? year : year - 1;
+    const blocks = [
+      {y:fyY,   m:4,  n:3},
+      {y:fyY,   m:7,  n:3},
+      {y:fyY,   m:10, n:3},
+      {y:fyY+1, m:1,  n:3},
+    ];
+    let allEvs = [];
+    for(let i=0; i<blocks.length; i++){
+      document.getElementById('loading-progress').textContent = `${i+1}/4 取得中…`;
+      try{
+        const d = await fetchAll(blocks[i].y, blocks[i].m, blocks[i].n);
+        allEvs = mergeToFcEvents(d, allEvs);
+        if(i===0){
+          // 最初のブロックで即カレンダー表示
+          saveCache(allEvs);
+          initCalendar(allEvs);
+        } else if(calendar){
+          // 追加分をカレンダーに反映
+          const src = calendar.getEventSources()[0];
+          if(src) src.remove();
+          calendar.addEventSource(allEvs);
+        }
+      }catch(e){ console.warn('block fail', e); }
+    }
+    saveCache(allEvs);
+    allFcEvents = allEvs;
+    meta.firstFetch  = now;
+    meta.weeklyFetch = now;
+    meta.dailyFetch  = now;
+    saveMeta(meta);
+    hideBadge();
+
+  } else {
+    // キャッシュで即表示
+    allFcEvents = cached;
+    if(!calendar) initCalendar(cached);
+
+    if(needWeek){
+      showBadge('週次更新中…');
+      try{
+        const ws = new Date(today); ws.setMonth(ws.getMonth()-1);
+        const d = await fetchAll(ws.getFullYear(), ws.getMonth()+1, 4);
+        allFcEvents = mergeToFcEvents(d, allFcEvents);
+        saveCache(allFcEvents);
+        refreshCalendarSource(allFcEvents);
+        meta.weeklyFetch = now; meta.dailyFetch = now;
+      }catch(e){}
+      saveMeta(meta); hideBadge();
+
+    } else if(needDay){
+      showBadge('本日分更新中…');
+      try{
+        const ds = new Date(today); ds.setMonth(ds.getMonth()-1);
+        const d = await fetchAll(ds.getFullYear(), ds.getMonth()+1, 2);
+        allFcEvents = mergeToFcEvents(d, allFcEvents);
+        saveCache(allFcEvents);
+        refreshCalendarSource(allFcEvents);
+        meta.dailyFetch = now;
+      }catch(e){}
+      saveMeta(meta); hideBadge();
+
+    } else {
+      // バックグラウンドで当月〜来月確認
+      setTimeout(async()=>{
+        try{
+          showBadge('最新確認中…');
+          const n2m = today.getDate() > 10;
+          const d = await fetchAll(year, month, n2m ? 2 : 1);
+          allFcEvents = mergeToFcEvents(d, allFcEvents);
+          saveCache(allFcEvents);
+          refreshCalendarSource(allFcEvents);
+        }catch(e){}
+        hideBadge();
+      }, 300);
+    }
+  }
+}
+
+function refreshCalendarSource(events){
+  if(!calendar) return;
+  calendar.getEventSources().forEach(s => s.remove());
+  calendar.addEventSource(events);
+}
+
+function forceRefresh(){
+  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(CACHE_META);
+  allFcEvents = [];
+  if(calendar){ calendar.destroy(); calendar = null; }
+  document.getElementById('loading-wrap').style.display = '';
+  document.getElementById('cal-wrap').style.display = 'none';
+  document.getElementById('loading-progress').textContent = '';
+  loadData(true);
+}
+
+// =============================================
+// 起動
+// =============================================
+loadData();
+</script>
+</body>
+</html>  padding:14px 16px 10px;
+  box-shadow:0 4px 20px rgba(180,148,110,.15);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:200;
+}
+.app-title{
+  font-size:13px;font-weight:800;color:var(--tan);letter-spacing:.04em;
+}
+.sync-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:10px;font-weight:700;color:var(--mu);
+  font-family:inherit;text-decoration:underline;padding:4px;
+}
+
+/* ===== カレンダーラッパー ===== */
+#cal-wrap{
+  padding:12px;
+  max-width:900px;
+  margin:0 auto;
+}
+
+/* ===== FullCalendar オーバーライド ===== */
+.fc{
+  font-family:'M PLUS Rounded 1c',sans-serif !important;
+}
+
+/* ツールバー */
+.fc .fc-toolbar{
+  margin-bottom:12px !important;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.fc .fc-toolbar-title{
+  font-size:1.1rem !important;
+  font-weight:800 !important;
+  color:var(--brown) !important;
+}
+
+/* ツールバーボタン */
+.fc .fc-button{
+  background:var(--bg) !important;
+  border:none !important;
+  color:var(--brown) !important;
+  font-family:'M PLUS Rounded 1c',sans-serif !important;
+  font-weight:700 !important;
+  font-size:11px !important;
+  border-radius:9999px !important;
+  padding:6px 14px !important;
+  box-shadow:4px 4px 10px var(--sd),-3px -3px 8px var(--sl) !important;
+  transition:all .18s !important;
+}
+.fc .fc-button:hover{
+  background:var(--bg) !important;
+  box-shadow:inset 3px 3px 8px var(--sd),inset -2px -2px 6px var(--sl) !important;
+}
+.fc .fc-button-active,.fc .fc-button:not(:disabled):active{
+  background:var(--tan) !important;
+  color:#fff !important;
+  box-shadow:inset 3px 3px 8px rgba(140,80,20,.3),inset -2px -2px 6px rgba(255,200,140,.3) !important;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active{
+  background:var(--tan) !important;
+  color:#fff !important;
+}
+
+/* 今日ボタン */
+.fc .fc-today-button{
+  background:var(--tan) !important;
+  color:#fff !important;
+}
+
+/* 曜日ヘッダー */
+.fc .fc-col-header-cell{
+  background:var(--bg) !important;
+  padding:6px 0 !important;
+}
+.fc .fc-col-header-cell-cushion{
+  font-size:11px !important;
+  font-weight:700 !important;
+  color:var(--mu) !important;
+  text-decoration:none !important;
+}
+.fc .fc-col-header-cell.fc-day-sun .fc-col-header-cell-cushion{color:#c0392b !important}
+.fc .fc-col-header-cell.fc-day-sat .fc-col-header-cell-cushion{color:#2E7A94 !important}
+
+/* 月表示のセル */
+.fc .fc-daygrid-day{
+  background:var(--bg) !important;
+}
+.fc .fc-daygrid-day:hover{
+  background:rgba(192,139,92,.06) !important;
+}
+.fc .fc-daygrid-day-number{
+  font-size:12px !important;
+  font-weight:700 !important;
+  color:var(--brown) !important;
+  text-decoration:none !important;
+  padding:4px 6px !important;
+}
+.fc .fc-day-today{
+  background:rgba(192,139,92,.08) !important;
+}
+.fc .fc-day-today .fc-daygrid-day-number{
+  background:var(--tan) !important;
+  color:#fff !important;
+  border-radius:50% !important;
+  width:26px !important;
+  height:26px !important;
+  min-width:26px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:11px !important;
+  padding:0 !important;
+  line-height:1 !important;
+}
+.fc .fc-day-sun .fc-daygrid-day-number{color:#c0392b !important}
+.fc .fc-day-sat .fc-daygrid-day-number{color:#2E7A94 !important}
+
+/* 週・日表示の時間軸 */
+.fc .fc-timegrid-slot{
   height:28px !important;
 }
 .fc .fc-timegrid-slot-label{
