@@ -629,13 +629,21 @@ function initCalendar(events){
         'animation:tipIn .15s ease;';
       document.body.appendChild(tip);
 
+      // スマホはtouchend、PCはclickで閉じる（即消え防止）
+      const closeTooltip = function once(e){
+        // タップした要素がツールチップ自身なら無視
+        const t = document.getElementById('fc-tooltip');
+        if(!t) return;
+        if(t.contains(e.target)) return;
+        t.remove();
+        document.removeEventListener('touchend', closeTooltip);
+        document.removeEventListener('click', closeTooltip);
+      };
+      // 300ms後に閉じるリスナーを登録（タップの伝播が終わってから）
       setTimeout(()=>{
-        document.addEventListener('click', function once(){
-          const t = document.getElementById('fc-tooltip');
-          if(t) t.remove();
-          document.removeEventListener('click', once);
-        });
-      }, 50);
+        document.addEventListener('touchend', closeTooltip, {passive:true});
+        document.addEventListener('click', closeTooltip);
+      }, 300);
     },
     eventContent: function(arg){
       const view = arg.view.type;
