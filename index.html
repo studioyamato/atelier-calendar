@@ -122,10 +122,20 @@ html,body{
   padding:6px 0 !important;
 }
 .fc .fc-col-header-cell-cushion{
-  font-size:11px !important;
+  font-size:9px !important;
   font-weight:700 !important;
   color:var(--mu) !important;
   text-decoration:none !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  display:block !important;
+  padding:3px 1px !important;
+  max-width:100% !important;
+}
+.fc .fc-col-header-cell{
+  overflow:hidden !important;
+  min-width:0 !important;
 }
 .fc .fc-col-header-cell.fc-day-sun .fc-col-header-cell-cushion{color:#c0392b !important}
 .fc .fc-col-header-cell.fc-day-sat .fc-col-header-cell-cushion{color:#2E7A94 !important}
@@ -167,8 +177,13 @@ html,body{
   background:var(--tan) !important;
   color:#fff !important;
   border-radius:9999px !important;
-  padding:4px 10px !important;
-  font-size:12px !important;
+  padding:2px 4px !important;
+  font-size:9px !important;
+  display:inline-block !important;
+  max-width:calc(100% - 4px) !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
 }
 .fc .fc-col-header-cell.fc-day-today{
   background:rgba(192,139,92,.12) !important;
