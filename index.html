@@ -108,6 +108,13 @@ html,body{
   background:var(--tan) !important;
   color:#fff !important;
 }
+/* 今日ボタン：無効状態（すでに今日を表示中）*/
+.fc .fc-today-button:disabled{
+  background:var(--bg) !important;
+  color:var(--mu) !important;
+  opacity:0.6 !important;
+  box-shadow:inset 2px 2px 6px var(--sd),inset -2px -2px 5px var(--sl) !important;
+}
 
 /* 曜日ヘッダー */
 .fc .fc-col-header-cell{
@@ -378,7 +385,7 @@ html,body{
 </head>
 <body>
 
-<div class="app-header" id="app-header" style="visibility:hidden">
+<div class="app-header" id="app-header" style="display:none">
   <div class="app-title">アトリエやまと スケジュール</div>
   <button class="sync-btn" onclick="forceRefresh()">更新</button>
 </div>
@@ -393,7 +400,7 @@ html,body{
   <div id="calendar"></div>
 </div>
 
-<div class="legend">
+<div class="legend" id="legend-area" style="display:none">
   <div class="legend-item"><div class="legend-dot" style="background:var(--lesson)"></div>授業・教室</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--personal)"></div>各種業務など</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--closed)"></div>休業日</div>
