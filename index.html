@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>アトリエやまと｜スケジュール</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>body,*{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}
+@keyframes tipIn{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <style>
 /* ===== ベース ===== */
@@ -26,7 +32,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
   background:var(--bg);
-  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   color:var(--brown);
   min-height:100vh;
 }
@@ -61,7 +67,7 @@ html,body{
 
 /* ===== FullCalendar オーバーライド ===== */
 .fc{
-  font-family:'M PLUS Rounded 1c',sans-serif !important;
+  font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif !important;
 }
 
 /* ツールバー */
@@ -81,7 +87,7 @@ html,body{
   background:var(--bg) !important;
   border:none !important;
   color:var(--brown) !important;
-  font-family:'M PLUS Rounded 1c',sans-serif !important;
+  font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif !important;
   font-weight:700 !important;
   font-size:11px !important;
   border-radius:9999px !important;
@@ -186,7 +192,7 @@ html,body{
 .fc .fc-event{
   border:none !important;
   border-radius:7px !important;
-  font-family:'M PLUS Rounded 1c',sans-serif !important;
+  font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif !important;
   font-size:9.5px !important;
   font-weight:700 !important;
   cursor:default !important;
@@ -289,7 +295,7 @@ html,body{
   font-size:11px;font-weight:700;
   padding:8px 18px;border-radius:9999px;
   z-index:999;white-space:nowrap;display:none;
-  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
 }
 
 /* レスポンシブ */
@@ -564,7 +570,7 @@ function initCalendar(events){
         padding:10px 14px;border-radius:12px;
         box-shadow:0 4px 16px rgba(0,0,0,.3);
         pointer-events:none;
-        font-family:'M PLUS Rounded 1c',sans-serif;
+        font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
         max-width:200px;
         transition:opacity .15s;
       `;
@@ -586,44 +592,51 @@ function initCalendar(events){
       const tip = document.getElementById('fc-tooltip');
       if(tip){ document.removeEventListener('mousemove', tip._move); tip.remove(); }
     },
-    // スマホ：タップで詳細表示
+    // タップで即詳細表示（1回タップで表示）
     eventClick: function(info){
       const old = document.getElementById('fc-tooltip');
-      if(old){ old.remove(); return; }
+      if(old) old.remove();
 
       const ev = info.event;
       const title = ev.title;
       const start = ev.start, end = ev.end;
-      const fmt = d => d ? `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '';
-      const timeStr = start && end ? `${fmt(start)} 〜 ${fmt(end)}` : '';
+      const fmt = d => d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '';
+      const timeStr = (start && !ev.allDay) ? fmt(start)+(end?' 〜 '+fmt(end):'') : '';
 
       const tip = document.createElement('div');
       tip.id = 'fc-tooltip';
-      tip.innerHTML = `
-        <div style="font-size:13px;font-weight:800;margin-bottom:4px">${title}</div>
-        ${timeStr ? `<div style="font-size:11px;opacity:.8">${timeStr}</div>` : ''}
-        <div style="font-size:10px;opacity:.6;margin-top:6px">タップで閉じる</div>
-      `;
+      tip.innerHTML =
+        '<div style="font-size:14px;font-weight:800;margin-bottom:'+(timeStr?'6':'0')+'px;line-height:1.3">'+title+'</div>'+
+        (timeStr ? '<div style="font-size:12px;font-weight:600;opacity:.85">'+timeStr+'</div>' : '')+
+        '<div style="font-size:10px;opacity:.5;margin-top:8px;text-align:center">タップで閉じる</div>';
 
       const rect = info.el.getBoundingClientRect();
-      tip.style.cssText = `
-        position:fixed;z-index:9999;
-        background:#3D2B1A;color:#fff;
-        padding:10px 14px;border-radius:12px;
-        box-shadow:0 4px 16px rgba(0,0,0,.3);
-        font-family:'M PLUS Rounded 1c',sans-serif;
-        max-width:200px;
-        left:${Math.min(rect.left, window.innerWidth - 220)}px;
-        top:${rect.bottom + 6}px;
-      `;
+      const tipW = 200;
+      let left = rect.left;
+      let top  = rect.bottom + 8;
+      if(left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+      if(top + 100 > window.innerHeight - 8)  top  = rect.top - 108;
+      if(left < 8) left = 8;
+
+      tip.style.cssText =
+        'position:fixed;z-index:9999;'+
+        'background:#3D2B1A;color:#fff;'+
+        'padding:12px 16px;border-radius:14px;'+
+        'box-shadow:0 6px 20px rgba(0,0,0,.35);'+
+        'font-family:inherit;'+
+        'width:'+tipW+'px;'+
+        'left:'+left+'px;top:'+top+'px;'+
+        'animation:tipIn .15s ease;';
       document.body.appendChild(tip);
-      // 他をタップで閉じる
+
       setTimeout(()=>{
-        document.addEventListener('click', function once(e){
-          if(!tip.contains(e.target)){ tip.remove(); document.removeEventListener('click', once); }
+        document.addEventListener('click', function once(){
+          const t = document.getElementById('fc-tooltip');
+          if(t) t.remove();
+          document.removeEventListener('click', once);
         });
-      }, 100);
-    },
+      }, 50);
+    }
     eventContent: function(arg){
       const view = arg.view.type;
       const ev = arg.event;
@@ -776,6 +789,32 @@ function forceRefresh(){
   document.getElementById('loading-progress').textContent = '';
   loadData(true);
 }
+
+// =============================================
+// スワイプで前後に移動
+// =============================================
+(function(){
+  let startX = 0, startY = 0, startTime = 0;
+  const el = document.getElementById('cal-wrap');
+
+  document.addEventListener('touchstart', e=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+  }, {passive:true});
+
+  document.addEventListener('touchend', e=>{
+    if(!calendar) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    const dt = Date.now() - startTime;
+    // 横スワイプ判定：横移動>60px、縦移動<横の半分、時間<400ms
+    if(Math.abs(dx) > 60 && Math.abs(dy) < Math.abs(dx) * 0.6 && dt < 400){
+      if(dx < 0) calendar.next();   // 左スワイプ→次へ
+      else        calendar.prev();  // 右スワイプ→前へ
+    }
+  }, {passive:true});
+})();
 
 // =============================================
 // 週・日表示の折り返しを常時強制（MutationObserver）
