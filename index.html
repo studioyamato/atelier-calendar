@@ -357,7 +357,7 @@ html,body{
 <body>
 
 <div class="app-header">
-  <div class="app-title">アトリエやまと スケジュール</div>
+  <div class="app-title" id="app-title" style="opacity:0">アトリエやまと スケジュール</div>
   <button class="sync-btn" onclick="forceRefresh()">更新</button>
 </div>
 
@@ -555,7 +555,7 @@ function initCalendar(events){
     },
     eventMouseEnter: function(info){
       // 既存ツールチップ削除
-      const old = document.querySelector('.fc-tooltip');
+      const old = document.getElementById('fc-tooltip');
       if(old) old.remove();
 
       const ev = info.event;
@@ -567,20 +567,8 @@ function initCalendar(events){
 
       const tip = document.createElement('div');
       tip.id = 'fc-tooltip';
-      tip.innerHTML = `
-        <div style="font-size:13px;font-weight:800;margin-bottom:4px">${title}</div>
-        ${timeStr ? `<div style="font-size:11px;opacity:.8">${timeStr}</div>` : ''}
-      `;
-      tip.style.cssText = `
-        position:fixed;z-index:9999;
-        background:#3D2B1A;color:#fff;
-        padding:10px 14px;border-radius:12px;
-        box-shadow:0 4px 16px rgba(0,0,0,.3);
-        pointer-events:none;
-        font-family:'M PLUS Rounded 1c',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
-        max-width:200px;
-        transition:opacity .15s;
-      `;
+      tip.style.cssText = 'position:fixed;z-index:9999;background:#3D2B1A;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;font-family:inherit;max-width:200px;';
+      tip.innerHTML = '<div style="font-size:13px;font-weight:800;margin-bottom:4px">'+title+'</div>'+(timeStr?'<div style="font-size:11px;opacity:.8">'+timeStr+'</div>':'');
       document.body.appendChild(tip);
 
       // マウス位置に追従
@@ -596,13 +584,19 @@ function initCalendar(events){
       tip._move = move;
     },
     eventMouseLeave: function(info){
-      const tip = document.querySelector('.fc-tooltip');
-      if(tip){ document.removeEventListener('mousemove', tip._move); tip.remove(); }
+      // 少し待ってからツールチップを消す（ツールチップ自体にマウスが乗った場合を除く）
+      setTimeout(()=>{
+        const tip = document.querySelector('#fc-tooltip');
+        if(tip && !tip.matches(':hover')){
+          if(tip._move) document.removeEventListener('mousemove', tip._move);
+          tip.remove();
+        }
+      }, 100);
     },
     // タップで詳細表示
     eventClick: function(info){
       // 既存ツールチップを全部消す
-      document.querySelectorAll('.fc-tooltip').forEach(t=>t.remove());
+      const _ot=document.getElementById('fc-tooltip');if(_ot)_ot.remove();
       if(window._tooltipTimer) clearTimeout(window._tooltipTimer);
 
       const ev = info.event;
@@ -683,6 +677,7 @@ function initCalendar(events){
   calendar.render();
   document.getElementById('loading-wrap').style.display = 'none';
   document.getElementById('cal-wrap').style.display = '';
+  var t=document.getElementById('app-title'); if(t) t.style.opacity='1';
 }
 
 // =============================================
@@ -851,9 +846,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 
 // =============================================
-// 起動
+// 起動（全リソース読み込み完了後）
 // =============================================
-loadData();
+window.addEventListener("load", function(){
+  loadData();
+});
 </script>
 </body>
 </html>
