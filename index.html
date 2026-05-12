@@ -195,10 +195,11 @@ html,body{
 }
 .fc .fc-event-title{
   font-weight:800 !important;
-  white-space:nowrap !important;
+  white-space:normal !important;
+  word-break:break-all !important;
   overflow:hidden !important;
-  text-overflow:ellipsis !important;
   display:block !important;
+  line-height:1.25 !important;
 }
 .fc .fc-event-time{
   font-size:8px !important;
@@ -483,24 +484,21 @@ function initCalendar(events){
       const timeText = arg.timeText;
 
       // 月表示はデフォルト
-      if(view === 'dayGridMonth'){
-        return true;
-      }
+      if(view === 'dayGridMonth') return true;
 
-      // 週・日表示：カスタムレンダリング
       const el = document.createElement('div');
-      el.style.cssText = 'padding:2px 4px;overflow:hidden;height:100%;display:flex;flex-direction:column;justify-content:flex-start;';
+      el.style.cssText = 'padding:2px 3px;height:100%;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;';
 
       if(timeText && view === 'timeGridDay'){
-        // 日表示は時刻+名前
         const tEl = document.createElement('div');
-        tEl.style.cssText = 'font-size:8px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;';
+        tEl.style.cssText = 'font-size:8px;opacity:.85;white-space:nowrap;line-height:1.3;overflow:hidden;text-overflow:ellipsis;';
         tEl.textContent = timeText;
         el.appendChild(tEl);
       }
 
+      // 名前を縦折り返しで表示（Googleカレンダー風）
       const nEl = document.createElement('div');
-      nEl.style.cssText = 'font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;';
+      nEl.style.cssText = 'font-size:10px;font-weight:800;line-height:1.25;overflow:hidden;word-break:break-all;white-space:normal;';
       nEl.textContent = title;
       el.appendChild(nEl);
 
