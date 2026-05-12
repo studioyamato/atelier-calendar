@@ -396,7 +396,7 @@ html,body{
   <p id="loading-progress"></p>
 </div>
 
-<div id="cal-wrap" style="display:none">
+<div id="cal-wrap" style="display:none;visibility:hidden">
   <div id="calendar"></div>
 </div>
 
@@ -677,21 +677,22 @@ function initCalendar(events){
     },
   });
 
-  // cal-wrapを非表示のまま描画
-  const calWrap = document.getElementById('cal-wrap');
-  calWrap.style.display = '';
-  calWrap.style.visibility = 'hidden';
+  // カレンダーを非表示のままrender（データが来てから表示する）
+  document.getElementById('cal-wrap').style.display = '';
   calendar.render();
+  // ※ ローディング画面はshowCalendar()が呼ばれるまで維持
+}
 
-  // 2フレーム後に完全表示（描画ゴミが消えてから）
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      document.getElementById('loading-wrap').style.display = 'none';
-      calWrap.style.visibility = 'visible';
-      var h=document.getElementById('app-header'); if(h) h.style.display='flex';
-      var l=document.getElementById('legend-area'); if(l) l.style.display='';
-    });
-  });
+function showCalendar(){
+  if(window._calShown) return;
+  window._calShown = true;
+  // ローディングを消してカレンダーを表示
+  document.getElementById('loading-wrap').style.display = 'none';
+  var c=document.getElementById('cal-wrap'); if(c){ c.style.visibility='visible'; }
+  var h=document.getElementById('app-header'); if(h) h.style.display='flex';
+  var l=document.getElementById('legend-area'); if(l) l.style.display='';
+  // カレンダーサイズを再計算
+  if(calendar) calendar.updateSize();
 }
 
 // =============================================
@@ -705,28 +706,30 @@ async function loadData(force=false){
   const month = today.getMonth() + 1;
   const cached = loadCache();
 
-  // ===== Step1: まずカレンダーを即表示 =====
-  if(!calendar){
-    initCalendar(cached); // キャッシュがあればキャッシュで、なければ空で即表示
-  }
-
-  // ===== Step2: バックグラウンドでデータ取得 =====
+  // ===== Step1: データ取得してからカレンダー表示 =====
   const isFirst  = force || !meta.firstFetch;
   const needWeek = !meta.weeklyFetch || (now - meta.weeklyFetch) > TTL_WEEK;
   const needDay  = !meta.dailyFetch  || (now - meta.dailyFetch)  > TTL_DAY;
 
   if(isFirst){
-    // 初回：当月2ヶ月を取得
-    showBadge('データ取得中…');
+    // 初回：当月2ヶ月を取得してからカレンダーを初期化
+    document.getElementById('loading-progress').textContent = '取得中…';
+    let evs = cached;
     try{
       const d = await fetchAll(year, month, 2);
-      allFcEvents = mergeToFcEvents(d, cached);
-      saveCache(allFcEvents);
-      refreshCalendarSource(allFcEvents);
+      evs = mergeToFcEvents(d, cached);
+      saveCache(evs);
       meta.firstFetch = now; meta.weeklyFetch = now; meta.dailyFetch = now;
       saveMeta(meta);
-    }catch(e){ console.warn('fetch fail', e); }
-    hideBadge();
+    }catch(e){
+      console.warn('fetch fail', e);
+      // 失敗してもキャッシュかemptyで表示
+    }
+    allFcEvents = evs;
+    document.getElementById('loading-progress').textContent = '';
+    if(!calendar) initCalendar(evs);
+    else refreshCalendarSource(evs);
+    showCalendar(); // データ取得後に表示
 
     // 年間データをさらにバックグラウンドで
     bgFetchYear(year, month);
@@ -743,6 +746,7 @@ async function loadData(force=false){
       saveMeta(meta);
     }catch(e){}
     hideBadge();
+    showCalendar();
 
   } else if(needDay){
     showBadge('更新中…');
@@ -756,9 +760,14 @@ async function loadData(force=false){
       saveMeta(meta);
     }catch(e){}
     hideBadge();
+    showCalendar();
 
   } else {
-    // 通常：バックグラウンドで当月確認
+    // キャッシュで即表示
+    allFcEvents = cached;
+    if(!calendar) initCalendar(cached);
+    showCalendar(); // キャッシュで即表示
+    // バックグラウンドで当月確認
     setTimeout(async()=>{
       try{
         const d = await fetchAll(year, month, today.getDate()>10?2:1);
