@@ -192,6 +192,14 @@ html,body{
   cursor:default !important;
   box-shadow:1px 2px 5px rgba(0,0,0,.12) !important;
   overflow:hidden !important;
+  transition:z-index 0s, transform .1s !important;
+}
+/* ホバー時に前面に出す */
+.fc-timegrid-event:hover{
+  z-index:999 !important;
+  transform:scale(1.02) !important;
+  box-shadow:2px 4px 12px rgba(0,0,0,.25) !important;
+  overflow:visible !important;
 }
 .fc .fc-event-title{
   font-weight:800 !important;
@@ -327,13 +335,24 @@ html,body{
   overflow:hidden !important;
   text-overflow:ellipsis !important;
 }
+
+/* ボタングループ */
+.fc .fc-button-group{
+  display:flex !important;
+  gap:2px !important;
+}
+.fc .fc-toolbar-chunk{
+  display:flex !important;
+  align-items:center !important;
+  gap:4px !important;
+}
 </style>
 </head>
 <body>
 
 <div class="app-header">
-  <div class="app-title">🎨 アトリエやまと スケジュール</div>
-  <button class="sync-btn" onclick="forceRefresh()">🔄 更新</button>
+  <div class="app-title">アトリエやまと スケジュール</div>
+  <button class="sync-btn" onclick="forceRefresh()">更新</button>
 </div>
 
 <div id="loading-wrap">
@@ -425,7 +444,7 @@ function convertToFcEvents(data){
           classNames: ['fc-event-closed'],
         });
         events.push({
-          title: '🔴 休業日',
+          title: '休業日',
           start: ev.start,
           end:   ev.end,
           allDay: true,
