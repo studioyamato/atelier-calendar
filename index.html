@@ -488,7 +488,7 @@ function mergeToFcEvents(newData, existing){
 // =============================================
 function showBadge(msg){
   const b = document.getElementById('sync-badge');
-  b.textContent = '🔄 ' + msg;
+  b.textContent = msg;
   b.style.display = 'block';
 }
 function hideBadge(){
@@ -519,6 +519,7 @@ function initCalendar(events){
     slotMinTime: '09:00:00',
     slotMaxTime: '22:00:00',
     slotDuration: '00:30:00',
+    slotEventOverlap: false,
     slotHeight: 32,
     slotLabelInterval: '01:00',
     scrollTime: '13:00:00',
