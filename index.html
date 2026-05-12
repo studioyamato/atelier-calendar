@@ -357,7 +357,7 @@ html,body{
 
 <div id="loading-wrap">
   <div class="spin"></div>
-  <p>カレンダーを読み込み中…</p>
+  <p id="loading-main">読み込み中</p>
   <p id="loading-progress"></p>
 </div>
 
@@ -508,7 +508,14 @@ function initCalendar(events){
     headerToolbar:{
       left:  'prev,next today',
       center: 'title',
-      right:  'dayGridMonth,timeGridWeek,timeGridDay'
+      right:  'dayGridMonth,timeGridWeek,timeGrid3Day,timeGridDay'
+    },
+    views:{
+      timeGrid3Day:{
+        type: 'timeGrid',
+        duration: { days: 3 },
+        buttonText: '3日',
+      }
     },
     buttonText:{
       today: '今日',
@@ -532,6 +539,90 @@ function initCalendar(events){
       hour:   '2-digit',
       minute: '2-digit',
       hour12: false,
+    },
+    eventMouseEnter: function(info){
+      // 既存ツールチップ削除
+      const old = document.getElementById('fc-tooltip');
+      if(old) old.remove();
+
+      const ev = info.event;
+      const title = ev.title;
+      const start = ev.start;
+      const end   = ev.end;
+      const fmt = d => d ? `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '';
+      const timeStr = start && end ? `${fmt(start)} 〜 ${fmt(end)}` : '';
+
+      const tip = document.createElement('div');
+      tip.id = 'fc-tooltip';
+      tip.innerHTML = `
+        <div style="font-size:13px;font-weight:800;margin-bottom:4px">${title}</div>
+        ${timeStr ? `<div style="font-size:11px;opacity:.8">${timeStr}</div>` : ''}
+      `;
+      tip.style.cssText = `
+        position:fixed;z-index:9999;
+        background:#3D2B1A;color:#fff;
+        padding:10px 14px;border-radius:12px;
+        box-shadow:0 4px 16px rgba(0,0,0,.3);
+        pointer-events:none;
+        font-family:'M PLUS Rounded 1c',sans-serif;
+        max-width:200px;
+        transition:opacity .15s;
+      `;
+      document.body.appendChild(tip);
+
+      // マウス位置に追従
+      const move = e => {
+        tip.style.left = (e.clientX + 14) + 'px';
+        tip.style.top  = (e.clientY - 10) + 'px';
+        // 画面端対応
+        const r = tip.getBoundingClientRect();
+        if(r.right > window.innerWidth - 10)  tip.style.left = (e.clientX - r.width - 14) + 'px';
+        if(r.bottom > window.innerHeight - 10) tip.style.top  = (e.clientY - r.height - 10) + 'px';
+      };
+      document.addEventListener('mousemove', move);
+      tip._move = move;
+    },
+    eventMouseLeave: function(info){
+      const tip = document.getElementById('fc-tooltip');
+      if(tip){ document.removeEventListener('mousemove', tip._move); tip.remove(); }
+    },
+    // スマホ：タップで詳細表示
+    eventClick: function(info){
+      const old = document.getElementById('fc-tooltip');
+      if(old){ old.remove(); return; }
+
+      const ev = info.event;
+      const title = ev.title;
+      const start = ev.start, end = ev.end;
+      const fmt = d => d ? `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '';
+      const timeStr = start && end ? `${fmt(start)} 〜 ${fmt(end)}` : '';
+
+      const tip = document.createElement('div');
+      tip.id = 'fc-tooltip';
+      tip.innerHTML = `
+        <div style="font-size:13px;font-weight:800;margin-bottom:4px">${title}</div>
+        ${timeStr ? `<div style="font-size:11px;opacity:.8">${timeStr}</div>` : ''}
+        <div style="font-size:10px;opacity:.6;margin-top:6px">タップで閉じる</div>
+      `;
+
+      const rect = info.el.getBoundingClientRect();
+      tip.style.cssText = `
+        position:fixed;z-index:9999;
+        background:#3D2B1A;color:#fff;
+        padding:10px 14px;border-radius:12px;
+        box-shadow:0 4px 16px rgba(0,0,0,.3);
+        font-family:'M PLUS Rounded 1c',sans-serif;
+        max-width:200px;
+        left:${Math.min(rect.left, window.innerWidth - 220)}px;
+        top:${rect.bottom + 6}px;
+      `;
+      document.body.appendChild(tip);
+      // 他をタップで閉じる
+      setTimeout(()=>{
+        document.addEventListener('click', function once(e){
+          if(!tip.contains(e.target)){ tip.remove(); document.removeEventListener('click', once); }
+        });
+      }, 100);
     },
     eventContent: function(arg){
       const view = arg.view.type;
