@@ -419,8 +419,9 @@ html,body{
 // 設定
 // =============================================
 const GAS = 'https://script.google.com/macros/s/AKfycbyCyQRvex2hkr899np_SryVq7GhEFlqFiHNebdnleh0znn6FLfMk7TPLaFC3rFPmcnvqQ/exec';
-const CACHE_KEY  = 'atelier_fc_v1';
-const CACHE_META = 'atelier_fc_meta_v1';
+const CACHE_KEY      = 'atelier_fc_v1';
+const CACHE_META     = 'atelier_fc_meta_v1';
+const CACHE_FETCHED  = 'atelier_fc_fetched_v1'; // 取得済み月の記録
 const TTL_DAY    = 24*60*60*1000;
 const TTL_WEEK   = 7*24*60*60*1000;
 
@@ -529,6 +530,21 @@ function mergeToFcEvents(newData, existing){
     if(!seen.has(key)){ seen.add(key); merged.push(ev); }
   });
   return merged;
+}
+
+// =============================================
+// 取得済み月の管理
+// =============================================
+function getFetchedMonths(){
+  try{ const s=localStorage.getItem(CACHE_FETCHED); return s?JSON.parse(s):{}; }catch(e){ return {}; }
+}
+function markFetched(year, month){
+  const m=getFetchedMonths();
+  m[year+'-'+String(month).padStart(2,'0')]=true;
+  try{ localStorage.setItem(CACHE_FETCHED, JSON.stringify(m)); }catch(e){}
+}
+function isFetched(year, month){
+  return !!getFetchedMonths()[year+'-'+String(month).padStart(2,'0')];
 }
 
 // =============================================
@@ -668,8 +684,13 @@ function initCalendar(events){
 
       return { domNodes: [el] };
     },
-    datesSet: function(){
+    datesSet: function(info){
       hideTip();
+      // 表示範囲に未取得の月があれば自動フェッチ
+      if(window._navFetchTimer) clearTimeout(window._navFetchTimer);
+      window._navFetchTimer = setTimeout(()=>{
+        fetchIfNeeded(info.start, info.end);
+      }, 300);
     },
     dayCellDidMount(info){
       if(info.date.getDay()===0) info.el.style.color='#c0392b';
@@ -721,6 +742,11 @@ async function loadData(force=false){
       saveCache(evs);
       meta.firstFetch = now; meta.weeklyFetch = now; meta.dailyFetch = now;
       saveMeta(meta);
+      // 取得済み月を記録
+      for(let i=0;i<2;i++){
+        const dt=new Date(year, month-1+i, 1);
+        markFetched(dt.getFullYear(), dt.getMonth()+1);
+      }
     }catch(e){
       console.warn('fetch fail', e);
       // 失敗してもキャッシュかemptyで表示
@@ -794,8 +820,44 @@ async function bgFetchYear(year, month){
       saveCache(evs);
       refreshCalendarSource(evs);
       allFcEvents = evs;
+      // 取得済みとして記録
+      for(let mo=0;mo<blocks[i].n;mo++){
+        const dt=new Date(blocks[i].y, blocks[i].m-1+mo, 1);
+        markFetched(dt.getFullYear(), dt.getMonth()+1);
+      }
     }catch(e){}
   }
+  hideBadge();
+}
+
+// ナビゲーション時に未取得の月を自動フェッチ
+let _navFetchTimer = null;
+async function fetchIfNeeded(startDate, endDate){
+  // 表示範囲の月リストを作成
+  const months = [];
+  const d = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  while(d <= endDate){
+    months.push({y: d.getFullYear(), m: d.getMonth()+1});
+    d.setMonth(d.getMonth()+1);
+  }
+  // 未取得の月を探す
+  const missing = months.filter(({y,m}) => !isFetched(y,m));
+  if(missing.length === 0) return;
+
+  // まとめて1リクエストで取得（最初の月から最後の月まで）
+  const first = missing[0];
+  const last  = missing[missing.length-1];
+  const totalMonths = (last.y - first.y)*12 + (last.m - first.m) + 1;
+
+  showBadge('読み込み中…');
+  try{
+    const d = await fetchAll(first.y, first.m, totalMonths);
+    allFcEvents = mergeToFcEvents(d, allFcEvents);
+    saveCache(allFcEvents);
+    refreshCalendarSource(allFcEvents);
+    // 取得済みとして記録
+    missing.forEach(({y,m}) => markFetched(y,m));
+  }catch(e){ console.warn('fetchIfNeeded fail',e); }
   hideBadge();
 }
 
@@ -814,6 +876,8 @@ function closePanel(){
 function forceRefresh(){
   localStorage.removeItem(CACHE_KEY);
   localStorage.removeItem(CACHE_META);
+  localStorage.removeItem(CACHE_FETCHED);
+  window._calShown = false;
   allFcEvents = [];
   loadData(true);
 }
