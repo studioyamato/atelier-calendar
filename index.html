@@ -688,8 +688,10 @@ function initCalendar(events){
       hideTip();
       // 表示範囲に未取得の月があれば自動フェッチ
       if(window._navFetchTimer) clearTimeout(window._navFetchTimer);
-      window._navFetchTimer = setTimeout(()=>{
-        fetchIfNeeded(info.start, info.end);
+      window._navFetchTimer = setTimeout(async ()=>{
+        await fetchIfNeeded(info.start, info.end);
+        // フェッチ完了後に前後3ヶ月をプリフェッチ
+        prefetchAround(info.start);
       }, 300);
     },
     dayCellDidMount(info){
@@ -828,6 +830,35 @@ async function bgFetchYear(year, month){
     }catch(e){}
   }
   hideBadge();
+}
+
+// 現在表示中の前後をプリフェッチ（バックグラウンド）
+let _prefetchTimer = null;
+async function prefetchAround(centerDate){
+  if(_prefetchTimer) clearTimeout(_prefetchTimer);
+  _prefetchTimer = setTimeout(async()=>{
+    // 前3ヶ月・後3ヶ月を1ヶ月ずつプリフェッチ
+    const ranges = [];
+    for(let i=-3; i<=3; i++){
+      if(i===0) continue;
+      const d = new Date(centerDate.getFullYear(), centerDate.getMonth()+i, 1);
+      if(!isFetched(d.getFullYear(), d.getMonth()+1)){
+        ranges.push({y:d.getFullYear(), m:d.getMonth()+1});
+      }
+    }
+    if(ranges.length === 0) return;
+    // まとめて取得
+    const first = ranges[0];
+    const last  = ranges[ranges.length-1];
+    const months = (last.y-first.y)*12+(last.m-first.m)+1;
+    try{
+      const d = await fetchAll(first.y, first.m, months);
+      allFcEvents = mergeToFcEvents(d, allFcEvents);
+      saveCache(allFcEvents);
+      refreshCalendarSource(allFcEvents);
+      ranges.forEach(({y,m})=>markFetched(y,m));
+    }catch(e){}
+  }, 1000); // 1秒後にバックグラウンドで実行
 }
 
 // ナビゲーション時に未取得の月を自動フェッチ
