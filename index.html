@@ -629,20 +629,29 @@ function initCalendar(events){
         'animation:tipIn .15s ease;';
       document.body.appendChild(tip);
 
-      // スマホはtouchend、PCはclickで閉じる（即消え防止）
-      const closeTooltip = function once(e){
-        // タップした要素がツールチップ自身なら無視
+      // 既存の閉じるリスナーを削除してから新しく登録
+      if(window._tooltipClose){
+        document.removeEventListener('touchend', window._tooltipClose);
+        document.removeEventListener('click', window._tooltipClose);
+        window._tooltipClose = null;
+      }
+
+      window._tooltipClose = function(e){
         const t = document.getElementById('fc-tooltip');
         if(!t) return;
+        // ツールチップ自身・予定ブロックをタップした場合は閉じない
         if(t.contains(e.target)) return;
+        if(e.target.closest('.fc-event, .fc-daygrid-event, .fc-timegrid-event')) return;
         t.remove();
-        document.removeEventListener('touchend', closeTooltip);
-        document.removeEventListener('click', closeTooltip);
+        document.removeEventListener('touchend', window._tooltipClose);
+        document.removeEventListener('click', window._tooltipClose);
+        window._tooltipClose = null;
       };
-      // 300ms後に閉じるリスナーを登録（タップの伝播が終わってから）
+
+      // 300ms後に登録（同じタップの伝播が終わってから）
       setTimeout(()=>{
-        document.addEventListener('touchend', closeTooltip, {passive:true});
-        document.addEventListener('click', closeTooltip);
+        document.addEventListener('touchend', window._tooltipClose, {passive:true});
+        document.addEventListener('click', window._tooltipClose);
       }, 300);
     },
     eventContent: function(arg){
