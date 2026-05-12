@@ -371,6 +371,21 @@ html,body{
   text-overflow:ellipsis !important;
 }
 
+/* 週・日表示の左上角（時刻列×終日行の交差部分） */
+.fc .fc-timegrid-axis,
+.fc .fc-scrollgrid-shrink,
+.fc .fc-col-header .fc-timegrid-axis{
+  background:var(--bg) !important;
+}
+.fc .fc-timegrid-axis-frame{
+  background:var(--bg) !important;
+}
+/* 終日エリアの背景 */
+.fc .fc-daygrid-body,
+.fc .fc-timegrid-allday{
+  background:var(--bg) !important;
+}
+
 /* ボタングループ */
 .fc .fc-button-group{
   display:flex !important;
