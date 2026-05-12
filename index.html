@@ -405,7 +405,7 @@ function saveMeta(m){ try{ localStorage.setItem(CACHE_META, JSON.stringify(m)); 
 // =============================================
 async function fetchAll(year, month, months=1){
   const url = `${GAS}?type=all&year=${year}&month=${month}&months=${months}`;
-  const r = await fetch(url, {signal: AbortSignal.timeout(30000)});
+  const r = await fetch(url, {signal: AbortSignal.timeout(20000)});
   if(!r.ok) throw new Error('fetch error');
   const d = await r.json();
   if(typeof d !== 'object' || Array.isArray(d)) throw new Error('invalid');
@@ -693,39 +693,49 @@ async function loadData(force=false){
   const needDay  = !meta.dailyFetch  || (now - meta.dailyFetch)  > TTL_DAY;
 
   if(isFirst || force){
-    // ===== 初回：今年度4月〜翌年3月を4ブロックで取得 =====
-    const fyY = month >= 4 ? year : year - 1;
-    const blocks = [
-      {y:fyY,   m:4,  n:3},
-      {y:fyY,   m:7,  n:3},
-      {y:fyY,   m:10, n:3},
-      {y:fyY+1, m:1,  n:3},
-    ];
+    // ===== 初回：まず当月2ヶ月分を即取得してカレンダー表示 =====
+    document.getElementById('loading-progress').textContent = '取得中…';
     let allEvs = [];
-    for(let i=0; i<blocks.length; i++){
-      document.getElementById('loading-progress').textContent = `${i+1}/4 取得中…`;
-      try{
-        const d = await fetchAll(blocks[i].y, blocks[i].m, blocks[i].n);
-        allEvs = mergeToFcEvents(d, allEvs);
-        if(i===0){
-          // 最初のブロックで即カレンダー表示
-          saveCache(allEvs);
-          initCalendar(allEvs);
-        } else if(calendar){
-          // 追加分をカレンダーに反映
-          const src = calendar.getEventSources()[0];
-          if(src) src.remove();
-          calendar.addEventSource(allEvs);
-        }
-      }catch(e){ console.warn('block fail', e); }
-    }
+
+    // Step1: 当月〜翌月を即取得（必ず表示する）
+    try{
+      const d = await fetchAll(year, month, 2);
+      allEvs = mergeToFcEvents(d, allEvs);
+    }catch(e){ console.warn('initial fetch fail', e); }
+
+    // キャッシュがあれば合わせて表示
+    if(cached.length > 0) allEvs = mergeToFcEvents({}, cached).length ? cached : allEvs;
+
     saveCache(allEvs);
-    allFcEvents = allEvs;
+    initCalendar(allEvs); // ← 必ずここで表示
     meta.firstFetch  = now;
     meta.weeklyFetch = now;
     meta.dailyFetch  = now;
     saveMeta(meta);
     hideBadge();
+
+    // Step2: 残り（年度全体）をバックグラウンドで取得
+    setTimeout(async()=>{
+      const fyY = month >= 4 ? year : year - 1;
+      const blocks = [
+        {y:fyY,   m:4,  n:3},
+        {y:fyY,   m:7,  n:3},
+        {y:fyY,   m:10, n:3},
+        {y:fyY+1, m:1,  n:3},
+      ];
+      let bgEvs = [...allEvs];
+      for(let i=0; i<blocks.length; i++){
+        try{
+          showBadge(`年間データ取得中 ${i+1}/4`);
+          const d = await fetchAll(blocks[i].y, blocks[i].m, blocks[i].n);
+          bgEvs = mergeToFcEvents(d, bgEvs);
+          saveCache(bgEvs);
+          refreshCalendarSource(bgEvs);
+        }catch(e){ console.warn('bg block fail', e); }
+      }
+      allFcEvents = bgEvs;
+      hideBadge();
+    }, 1000);
 
   } else {
     // キャッシュで即表示
